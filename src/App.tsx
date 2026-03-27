@@ -569,6 +569,15 @@ function AppShell() {
   );
 }
 
+function StatTile({ label, value }: { label: string; value: string }) {
+  return (
+    <div className="rounded-[1.25rem] border border-border/70 bg-background/70 p-4">
+      <p className="text-xs uppercase tracking-[0.24em] text-muted-foreground">{label}</p>
+      <p className="mt-2 font-mono text-lg font-semibold">{value}</p>
+    </div>
+  );
+}
+
 export default function App() {
   return (
     <ToastProvider>
