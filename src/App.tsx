@@ -243,13 +243,13 @@ function AppShell() {
                     className={cn(
                       "rounded-[10px] border px-8 py-2.5 text-left transition duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background",
                       isActive
-                        ? "border-[#D7F447] bg-[#E7FF57] text-[#1E2410] shadow-panel"
-                        : "border-border bg-background text-foreground hover:bg-muted",
+                        ? "border-[#A9BF78] bg-[#D6E3B1] text-[#2E391D] shadow-panel"
+                        : "border-border bg-background/95 text-foreground hover:border-[#E7C98D] hover:bg-[#FBF3E3]",
                     )}
                     onClick={() => setActiveTab(tab.key)}
                     type="button"
                   >
-                    <p className={cn("text-[14px] font-semibold leading-tight", isActive ? "text-[#1E2410]" : "text-foreground")}>
+                    <p className={cn("text-[14px] font-semibold leading-tight", isActive ? "text-[#2E391D]" : "text-foreground")}>
                       {tab.label}
                     </p>
                   </button>
@@ -264,9 +264,15 @@ function AppShell() {
             </Button>
           </div>
 
-          <Card className="border-[#F0C35B] bg-[#FFD86B] text-[#3D2A00]">
+          <Card className="border-[#E4BE7B] bg-[#F4D29C] text-[#52371A]">
             <CardContent className="px-5 py-4">
-              <p className="text-sm leading-7 text-[#3D2A00]/88">
+              <div className="mb-3 flex items-center gap-2">
+                <span className="h-2.5 w-2.5 rounded-full bg-[#91A95E]" />
+                <span className="text-xs font-semibold uppercase tracking-[0.18em] text-[#77562A]">
+                  Описание
+                </span>
+              </div>
+              <p className="text-sm leading-7 text-[#52371A]/88">
                 {tabs.find((tab) => tab.key === activeTab)?.description}
               </p>
             </CardContent>
