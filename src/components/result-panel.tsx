@@ -26,8 +26,11 @@ export function ResultPanel({
   minHeightClassName = "min-h-[240px]",
 }: ResultPanelProps) {
   const hasDescription = description.trim().length > 0;
+  const metricsClassName = metricsBelowTitle
+    ? "flex flex-wrap items-center gap-2"
+    : "flex flex-wrap items-center gap-2 self-start xl:max-w-[58%] xl:justify-end";
   const metrics = (
-    <div className="flex flex-nowrap items-center gap-2 self-start overflow-x-auto xl:max-w-[48%] xl:self-auto xl:justify-end">
+    <div className={metricsClassName}>
       <span className="whitespace-nowrap rounded-[10px] bg-primary/10 px-3 py-1 text-xs font-medium text-primary">
         {countLabel}
       </span>
@@ -43,7 +46,7 @@ export function ResultPanel({
     <Card className="h-full">
       <CardHeader className="space-y-0 pb-4">
         <div className="flex flex-col gap-3 xl:flex-row xl:items-start xl:justify-between">
-          <div className={hasDescription || metricsBelowTitle ? "space-y-2" : ""}>
+          <div className={hasDescription || metricsBelowTitle ? "space-y-2 min-w-0" : "min-w-0"}>
             <CardTitle>{title}</CardTitle>
             {hasDescription ? <CardDescription>{description}</CardDescription> : null}
             {metricsBelowTitle ? metrics : null}
