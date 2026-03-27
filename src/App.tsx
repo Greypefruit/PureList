@@ -64,22 +64,24 @@ const tabs: TabConfig[] = [
   {
     key: "dedupe",
     label: "Удаление дублей",
-    description: "Очищает грязный список и убирает повторяющиеся ID с сохранением первого вхождения.",
+    description: "Инструмент для удаления дубликатов.",
   },
   {
     key: "format",
     label: "Форматирование",
-    description: "Склеивает очищенные ID в одну строку или список с нужным разделителем.",
+    description:
+      "Инструмент позволяет преобразовать список в виде столбца в список строчного вида, добавив любой разделитель и наоборот.",
   },
   {
     key: "chunk",
     label: "Разделение",
-    description: "Разбивает большой массив ID на несколько готовых для копирования частей.",
+    description: "Инструмент для разбивки большого списка на отдельные списки.",
   },
   {
     key: "compare",
     label: "Сравнение",
-    description: "Показывает пересечение и уникальные значения для двух списков.",
+    description:
+      "Инструмент находит совпадение значений из двух списков и показывает уникальные значения обоих списков.",
   },
 ];
 
@@ -246,7 +248,7 @@ function AppShell() {
                 <button
                   key={tab.key}
                   className={cn(
-                    "rounded-[1.2rem] border px-5 py-4 text-left transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
+                    "rounded-[1.05rem] border px-5 py-3 text-left transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
                     isActive
                       ? "border-primary/40 bg-primary text-primary-foreground shadow-panel"
                       : "border-border/70 bg-card/80 hover:bg-card",
@@ -254,7 +256,7 @@ function AppShell() {
                   onClick={() => setActiveTab(tab.key)}
                   type="button"
                 >
-                  <p className={cn("text-[1.75rem] font-semibold leading-none", isActive ? "text-primary-foreground" : "text-foreground")}>
+                  <p className={cn("text-[20px] font-semibold leading-tight", isActive ? "text-primary-foreground" : "text-foreground")}>
                     {tab.label}
                   </p>
                 </button>
@@ -263,7 +265,7 @@ function AppShell() {
           </div>
 
           <Card className="border-border/60 bg-card/70">
-            <CardContent className="p-5">
+            <CardContent className="px-5 py-4">
               <p className="text-sm leading-7 text-muted-foreground">
                 {tabs.find((tab) => tab.key === activeTab)?.description}
               </p>
@@ -273,13 +275,10 @@ function AppShell() {
           {activeTab === "dedupe" ? (
             <div className="grid gap-6 xl:grid-cols-[1fr_0.95fr]">
               <Card>
-                <CardHeader>
+                <CardHeader className="pb-4">
                   <CardTitle>Удаление дублей</CardTitle>
-                  <CardDescription>
-                    Вставьте исходный список. Повторяющиеся ID будут удалены с сохранением порядка первого появления.
-                  </CardDescription>
                 </CardHeader>
-                <CardContent className="space-y-5">
+                <CardContent className="space-y-5 pt-0">
                   <Textarea
                     onChange={(event) => setDedupeInput(event.target.value)}
                     placeholder="Вставьте список ID в любом популярном формате"
@@ -317,7 +316,7 @@ function AppShell() {
               <div className="space-y-6">
                 <ResultPanel
                   countLabel={`Уникальных ID: ${dedupeState.uniqueCount}`}
-                  description="Готовый список без дублей."
+                  description=""
                   onCopy={() => copyToClipboard(dedupeState.output)}
                   secondaryCountLabel={`Удалено дублей: ${dedupeState.duplicatesRemoved}`}
                   title="Результат"
@@ -335,13 +334,10 @@ function AppShell() {
           {activeTab === "format" ? (
             <div className="grid gap-6 xl:grid-cols-[1fr_0.95fr]">
               <Card>
-                <CardHeader>
+                <CardHeader className="pb-4">
                   <CardTitle>Трансформация / Форматирование</CardTitle>
-                  <CardDescription>
-                    Превращает грязный список в аккуратно склеенный результат с нужным разделителем.
-                  </CardDescription>
                 </CardHeader>
-                <CardContent className="space-y-5">
+                <CardContent className="space-y-5 pt-0">
                   <Textarea
                     onChange={(event) => setFormatInput(event.target.value)}
                     placeholder="Вставьте список ID"
@@ -377,7 +373,7 @@ function AppShell() {
               <div className="space-y-6">
                 <ResultPanel
                   countLabel={`Количество ID: ${formatState.count}`}
-                  description="Список уже очищен и склеен по выбранному разделителю."
+                  description=""
                   onCopy={() => copyToClipboard(formatState.output)}
                   title="Преобразованный результат"
                   value={formatState.output}
@@ -389,13 +385,10 @@ function AppShell() {
           {activeTab === "chunk" ? (
             <div className="space-y-6">
               <Card>
-                <CardHeader>
-                  <CardTitle>Разделение списка</CardTitle>
-                  <CardDescription>
-                    Разбивает большой массив на части одинакового размера и подготавливает каждую часть к копированию.
-                  </CardDescription>
+                <CardHeader className="pb-4">
+                  <CardTitle>Разделение</CardTitle>
                 </CardHeader>
-                <CardContent className="space-y-5">
+                <CardContent className="space-y-5 pt-0">
                   <Textarea
                     onChange={(event) => setChunkInput(event.target.value)}
                     placeholder="Вставьте большой список ID"
@@ -471,13 +464,10 @@ function AppShell() {
           {activeTab === "compare" ? (
             <div className="space-y-6">
               <Card>
-                <CardHeader>
+                <CardHeader className="pb-4">
                   <CardTitle>Сравнение списков</CardTitle>
-                  <CardDescription>
-                    Сравнивает два набора ID и показывает пересечение, а также уникальные значения каждой стороны.
-                  </CardDescription>
                 </CardHeader>
-                <CardContent className="space-y-5">
+                <CardContent className="space-y-5 pt-0">
                   <div className="grid gap-4 xl:grid-cols-2">
                     <div className="space-y-2">
                       <label className="text-sm font-medium" htmlFor="compare-list-a">
@@ -539,24 +529,24 @@ function AppShell() {
               <div className="grid gap-6 xl:grid-cols-3">
                 <ResultPanel
                   countLabel={`Совпадений: ${compareState.intersectionCount}`}
-                  description="ID, присутствующие в обоих списках."
+                  description=""
                   onCopy={() => copyToClipboard(compareState.intersectionOutput)}
                   title="Совпадения"
                   value={compareState.intersectionOutput}
                 />
                 <ResultPanel
                   countLabel={`Уникальные ID: ${compareState.onlyInACount}`}
-                  description="ID, которые есть только в списке А и отсутствуют в списке Б."
+                  description=""
                   onCopy={() => copyToClipboard(compareState.onlyInAOutput)}
-                  secondaryCountLabel={`Всего уникальных в A: ${compareState.countA}`}
+                  secondaryCountLabel={`Всего значений: ${compareState.countA}`}
                   title="Уникальные в списке А"
                   value={compareState.onlyInAOutput}
                 />
                 <ResultPanel
                   countLabel={`Уникальные ID: ${compareState.onlyInBCount}`}
-                  description="ID, которые есть только в списке Б и отсутствуют в списке А."
+                  description=""
                   onCopy={() => copyToClipboard(compareState.onlyInBOutput)}
-                  secondaryCountLabel={`Всего уникальных в B: ${compareState.countB}`}
+                  secondaryCountLabel={`Всего значений: ${compareState.countB}`}
                   title="Уникальные в списке Б"
                   value={compareState.onlyInBOutput}
                 />
