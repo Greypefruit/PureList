@@ -264,9 +264,15 @@ function AppShell() {
             </Button>
           </div>
 
-          <Card className="border-border/60 bg-card/70">
+          <Card className="border-primary/20 bg-primary text-primary-foreground">
             <CardContent className="px-5 py-4">
-              <p className="text-sm leading-7 text-muted-foreground">
+              <div className="flex flex-wrap items-center gap-3">
+                <span className="rounded-[10px] bg-accent px-3 py-1 text-xs font-semibold uppercase tracking-[0.18em] text-accent-foreground">
+                  PureList
+                </span>
+                <span className="h-2.5 w-2.5 rounded-full bg-accent" />
+              </div>
+              <p className="mt-3 text-sm leading-7 text-primary-foreground/88">
                 {tabs.find((tab) => tab.key === activeTab)?.description}
               </p>
             </CardContent>
