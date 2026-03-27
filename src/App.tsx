@@ -1,8 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { SeparatorCombobox } from "./components/separator-combobox";
-import { SectionTitle } from "./components/section-title";
 import { ResultPanel } from "./components/result-panel";
-import { Badge } from "./components/ui/badge";
 import { Button } from "./components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "./components/ui/card";
 import { Input } from "./components/ui/input";
@@ -231,57 +229,15 @@ function AppShell() {
   return (
     <div className="relative min-h-screen overflow-hidden">
       <div className="absolute inset-0 -z-10 bg-grid bg-[size:36px_36px] opacity-50" />
-      <div className="mx-auto flex min-h-screen max-w-[1600px] flex-col gap-8 px-6 py-8 lg:px-10">
-        <header className="grid gap-6 xl:grid-cols-[1.2fr_0.8fr]">
-          <Card className="overflow-hidden">
-            <CardContent className="relative p-8 lg:p-10">
-              <div className="absolute inset-y-0 right-0 hidden w-1/3 bg-gradient-to-l from-primary/10 via-transparent to-transparent xl:block" />
-              <SectionTitle
-                eyebrow="PureList"
-                title="Быстрая обработка больших списков ID без серверов и ручной рутины"
-                description="Локальный инструмент для менеджеров и саппорта: вставьте грязные данные, получите чистый результат, разделите на части или сравните два массива без риска утечки данных."
-              />
-              <div className="mt-8 flex flex-wrap gap-3">
-                <Badge>Client-side only</Badge>
-                <Badge>До 100 000 ID</Badge>
-                <Badge>Strict case-sensitive</Badge>
-              </div>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardHeader>
-              <CardTitle>Рабочие правила</CardTitle>
-              <CardDescription>
-                Парсинг поддерживает переносы строк, запятые и точки с запятой. Каждое значение проходит
-                `trim()`, пустые элементы игнорируются, а данные не покидают браузер.
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-5">
-              <div className="grid gap-3 sm:grid-cols-2">
-                <StatTile label="Парсинг" value="Всеядный" />
-                <StatTile label="Сложность" value="Set / O(1)" />
-                <StatTile label="Архитектура" value="SPA / SSG" />
-                <StatTile label="Копирование" value="Toast feedback" />
-              </div>
-              <div className="flex items-center justify-between gap-3 rounded-[1.25rem] border border-border/70 bg-muted/60 p-4">
-                <div>
-                  <p className="text-sm font-medium">Тема интерфейса</p>
-                  <p className="text-xs text-muted-foreground">
-                    Светлая и темная тема переключаются без перезагрузки.
-                  </p>
-                </div>
-                <Button
-                  variant="outline"
-                  onClick={() => setTheme((current) => (current === "light" ? "dark" : "light"))}
-                >
-                  {theme === "light" ? "Тёмная тема" : "Светлая тема"}
-                </Button>
-              </div>
-            </CardContent>
-          </Card>
-        </header>
-
+      <div className="mx-auto flex min-h-screen max-w-[1600px] flex-col gap-6 px-6 py-6 lg:px-10 lg:py-8">
+        <div className="flex items-center justify-end">
+          <Button
+            variant="outline"
+            onClick={() => setTheme((current) => (current === "light" ? "dark" : "light"))}
+          >
+            {theme === "light" ? "Тёмная тема" : "Светлая тема"}
+          </Button>
+        </div>
         <section className="space-y-6">
           <div className="grid gap-3 xl:grid-cols-4">
             {tabs.map((tab) => {
@@ -290,7 +246,7 @@ function AppShell() {
                 <button
                   key={tab.key}
                   className={cn(
-                    "rounded-[1.4rem] border px-5 py-4 text-left transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
+                    "rounded-[1.2rem] border px-5 py-4 text-left transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
                     isActive
                       ? "border-primary/40 bg-primary text-primary-foreground shadow-panel"
                       : "border-border/70 bg-card/80 hover:bg-card",
@@ -298,21 +254,21 @@ function AppShell() {
                   onClick={() => setActiveTab(tab.key)}
                   type="button"
                 >
-                  <p className={cn("text-sm font-semibold", isActive ? "text-primary-foreground" : "text-foreground")}>
+                  <p className={cn("text-[1.75rem] font-semibold leading-none", isActive ? "text-primary-foreground" : "text-foreground")}>
                     {tab.label}
-                  </p>
-                  <p
-                    className={cn(
-                      "mt-2 text-sm leading-6",
-                      isActive ? "text-primary-foreground/90" : "text-muted-foreground",
-                    )}
-                  >
-                    {tab.description}
                   </p>
                 </button>
               );
             })}
           </div>
+
+          <Card className="border-border/60 bg-card/70">
+            <CardContent className="p-5">
+              <p className="text-sm leading-7 text-muted-foreground">
+                {tabs.find((tab) => tab.key === activeTab)?.description}
+              </p>
+            </CardContent>
+          </Card>
 
           {activeTab === "dedupe" ? (
             <div className="grid gap-6 xl:grid-cols-[1fr_0.95fr]">
@@ -363,6 +319,7 @@ function AppShell() {
                   countLabel={`Уникальных ID: ${dedupeState.uniqueCount}`}
                   description="Готовый список без дублей."
                   onCopy={() => copyToClipboard(dedupeState.output)}
+                  secondaryCountLabel={`Удалено дублей: ${dedupeState.duplicatesRemoved}`}
                   title="Результат"
                   value={dedupeState.output}
                 />
@@ -581,23 +538,25 @@ function AppShell() {
 
               <div className="grid gap-6 xl:grid-cols-3">
                 <ResultPanel
-                  countLabel={`Количество: ${compareState.intersectionCount}`}
+                  countLabel={`Совпадений: ${compareState.intersectionCount}`}
                   description="ID, присутствующие в обоих списках."
                   onCopy={() => copyToClipboard(compareState.intersectionOutput)}
                   title="Совпадения"
                   value={compareState.intersectionOutput}
                 />
                 <ResultPanel
-                  countLabel={`Количество: ${compareState.onlyInACount}`}
-                  description={`Только в списке А. Уникальных в A: ${compareState.countA}.`}
+                  countLabel={`Уникальные ID: ${compareState.onlyInACount}`}
+                  description="ID, которые есть только в списке А и отсутствуют в списке Б."
                   onCopy={() => copyToClipboard(compareState.onlyInAOutput)}
+                  secondaryCountLabel={`Всего уникальных в A: ${compareState.countA}`}
                   title="Уникальные в списке А"
                   value={compareState.onlyInAOutput}
                 />
                 <ResultPanel
-                  countLabel={`Количество: ${compareState.onlyInBCount}`}
-                  description={`Только в списке Б. Уникальных в B: ${compareState.countB}.`}
+                  countLabel={`Уникальные ID: ${compareState.onlyInBCount}`}
+                  description="ID, которые есть только в списке Б и отсутствуют в списке А."
                   onCopy={() => copyToClipboard(compareState.onlyInBOutput)}
+                  secondaryCountLabel={`Всего уникальных в B: ${compareState.countB}`}
                   title="Уникальные в списке Б"
                   value={compareState.onlyInBOutput}
                 />
@@ -606,15 +565,6 @@ function AppShell() {
           ) : null}
         </section>
       </div>
-    </div>
-  );
-}
-
-function StatTile({ label, value }: { label: string; value: string }) {
-  return (
-    <div className="rounded-[1.25rem] border border-border/70 bg-background/70 p-4">
-      <p className="text-xs uppercase tracking-[0.24em] text-muted-foreground">{label}</p>
-      <p className="mt-2 font-mono text-lg font-semibold">{value}</p>
     </div>
   );
 }

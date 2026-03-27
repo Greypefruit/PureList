@@ -7,6 +7,7 @@ interface ResultPanelProps {
   description: string;
   value: string;
   countLabel: string;
+  secondaryCountLabel?: string;
   onCopy: () => void;
   actionLabel?: string;
   minHeightClassName?: string;
@@ -17,6 +18,7 @@ export function ResultPanel({
   description,
   value,
   countLabel,
+  secondaryCountLabel,
   onCopy,
   actionLabel = "Скопировать результат",
   minHeightClassName = "min-h-[240px]",
@@ -24,14 +26,21 @@ export function ResultPanel({
   return (
     <Card className="h-full">
       <CardHeader className="space-y-3">
-        <div className="flex items-start justify-between gap-4">
+        <div className="flex flex-col gap-3 xl:flex-row xl:items-start xl:justify-between">
           <div className="space-y-1">
             <CardTitle>{title}</CardTitle>
             <CardDescription>{description}</CardDescription>
           </div>
-          <span className="rounded-full bg-muted px-3 py-1 text-xs font-medium text-muted-foreground">
-            {countLabel}
-          </span>
+          <div className="flex flex-wrap items-center gap-2 xl:max-w-[48%] xl:justify-end">
+            <span className="whitespace-nowrap rounded-full bg-primary/10 px-3 py-1 text-xs font-medium text-primary">
+              {countLabel}
+            </span>
+            {secondaryCountLabel ? (
+              <span className="whitespace-nowrap rounded-full bg-secondary px-3 py-1 text-xs font-medium text-secondary-foreground">
+                {secondaryCountLabel}
+              </span>
+            ) : null}
+          </div>
         </div>
       </CardHeader>
       <CardContent className="space-y-4">
