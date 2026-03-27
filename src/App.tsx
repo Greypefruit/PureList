@@ -243,13 +243,13 @@ function AppShell() {
                     className={cn(
                       "rounded-[10px] border px-8 py-2.5 text-left transition duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background",
                       isActive
-                        ? "border-primary/40 bg-primary text-primary-foreground shadow-panel"
+                        ? "border-[#D7F447] bg-[#E7FF57] text-[#1E2410] shadow-panel"
                         : "border-border bg-background text-foreground hover:bg-muted",
                     )}
                     onClick={() => setActiveTab(tab.key)}
                     type="button"
                   >
-                    <p className={cn("text-[14px] font-semibold leading-tight", isActive ? "text-primary-foreground" : "text-foreground")}>
+                    <p className={cn("text-[14px] font-semibold leading-tight", isActive ? "text-[#1E2410]" : "text-foreground")}>
                       {tab.label}
                     </p>
                   </button>
@@ -264,15 +264,9 @@ function AppShell() {
             </Button>
           </div>
 
-          <Card className="border-primary/20 bg-primary text-primary-foreground">
+          <Card className="border-[#F0C35B] bg-[#FFD86B] text-[#3D2A00]">
             <CardContent className="px-5 py-4">
-              <div className="flex flex-wrap items-center gap-3">
-                <span className="rounded-[10px] bg-accent px-3 py-1 text-xs font-semibold uppercase tracking-[0.18em] text-accent-foreground">
-                  PureList
-                </span>
-                <span className="h-2.5 w-2.5 rounded-full bg-accent" />
-              </div>
-              <p className="mt-3 text-sm leading-7 text-primary-foreground/88">
+              <p className="text-sm leading-7 text-[#3D2A00]/88">
                 {tabs.find((tab) => tab.key === activeTab)?.description}
               </p>
             </CardContent>
