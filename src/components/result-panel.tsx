@@ -34,11 +34,11 @@ export function ResultPanel({
             {hasDescription ? <CardDescription>{description}</CardDescription> : null}
           </div>
           <div className="flex flex-wrap items-center gap-2 xl:max-w-[48%] xl:justify-end">
-            <span className="whitespace-nowrap rounded-full bg-primary/10 px-3 py-1 text-xs font-medium text-primary">
+            <span className="whitespace-nowrap rounded-[10px] bg-primary/10 px-3 py-1 text-xs font-medium text-primary">
               {countLabel}
             </span>
             {secondaryCountLabel ? (
-              <span className="whitespace-nowrap rounded-full bg-secondary px-3 py-1 text-xs font-medium text-secondary-foreground">
+              <span className="whitespace-nowrap rounded-[10px] bg-secondary px-3 py-1 text-xs font-medium text-secondary-foreground">
                 {secondaryCountLabel}
               </span>
             ) : null}

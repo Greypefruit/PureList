@@ -2,7 +2,7 @@ import { useEffect, useMemo, useState } from "react";
 import { SeparatorCombobox } from "./components/separator-combobox";
 import { ResultPanel } from "./components/result-panel";
 import { Button } from "./components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "./components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "./components/ui/card";
 import { Input } from "./components/ui/input";
 import { Textarea } from "./components/ui/textarea";
 import { ToastProvider, useToast } from "./components/ui/toaster";
@@ -232,36 +232,36 @@ function AppShell() {
     <div className="relative min-h-screen overflow-hidden">
       <div className="absolute inset-0 -z-10 bg-grid bg-[size:36px_36px] opacity-50" />
       <div className="mx-auto flex min-h-screen max-w-[1600px] flex-col gap-6 px-6 py-6 lg:px-10 lg:py-8">
-        <div className="flex items-center justify-end">
-          <Button
-            variant="outline"
-            onClick={() => setTheme((current) => (current === "light" ? "dark" : "light"))}
-          >
-            {theme === "light" ? "Тёмная тема" : "Светлая тема"}
-          </Button>
-        </div>
         <section className="space-y-6">
-          <div className="grid gap-3 xl:grid-cols-4">
-            {tabs.map((tab) => {
-              const isActive = tab.key === activeTab;
-              return (
-                <button
-                  key={tab.key}
-                  className={cn(
-                    "rounded-[1.05rem] border px-5 py-3 text-left transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
-                    isActive
-                      ? "border-primary/40 bg-primary text-primary-foreground shadow-panel"
-                      : "border-border/70 bg-card/80 hover:bg-card",
-                  )}
-                  onClick={() => setActiveTab(tab.key)}
-                  type="button"
-                >
-                  <p className={cn("text-[20px] font-semibold leading-tight", isActive ? "text-primary-foreground" : "text-foreground")}>
-                    {tab.label}
-                  </p>
-                </button>
-              );
-            })}
+          <div className="flex flex-wrap items-center justify-between gap-3">
+            <div className="flex flex-wrap items-center gap-3">
+              {tabs.map((tab) => {
+                const isActive = tab.key === activeTab;
+                return (
+                  <button
+                    key={tab.key}
+                    className={cn(
+                      "rounded-[10px] border px-8 py-2.5 text-left transition duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background",
+                      isActive
+                        ? "border-primary/40 bg-primary text-primary-foreground shadow-panel"
+                        : "border-border bg-background text-foreground hover:bg-muted",
+                    )}
+                    onClick={() => setActiveTab(tab.key)}
+                    type="button"
+                  >
+                    <p className={cn("text-[14px] font-semibold leading-tight", isActive ? "text-primary-foreground" : "text-foreground")}>
+                      {tab.label}
+                    </p>
+                  </button>
+                );
+              })}
+            </div>
+            <Button
+              variant="outline"
+              onClick={() => setTheme((current) => (current === "light" ? "dark" : "light"))}
+            >
+              {theme === "light" ? "Тёмная тема" : "Светлая тема"}
+            </Button>
           </div>
 
           <Card className="border-border/60 bg-card/70">
@@ -280,6 +280,7 @@ function AppShell() {
                 </CardHeader>
                 <CardContent className="space-y-5 pt-0">
                   <Textarea
+                    className="min-h-[154px]"
                     onChange={(event) => setDedupeInput(event.target.value)}
                     placeholder="Вставьте список ID в любом популярном формате"
                     value={dedupeInput}
@@ -317,15 +318,16 @@ function AppShell() {
                 <ResultPanel
                   countLabel={`Уникальных ID: ${dedupeState.uniqueCount}`}
                   description=""
+                  minHeightClassName="min-h-[168px]"
                   onCopy={() => copyToClipboard(dedupeState.output)}
                   secondaryCountLabel={`Удалено дублей: ${dedupeState.duplicatesRemoved}`}
                   title="Результат"
                   value={dedupeState.output}
                 />
-                <div className="grid gap-4 sm:grid-cols-3">
-                  <StatTile label="Всего строк" value={String(dedupeState.total)} />
-                  <StatTile label="Уникальных ID" value={String(dedupeState.uniqueCount)} />
-                  <StatTile label="Удалено дублей" value={String(dedupeState.duplicatesRemoved)} />
+                <div className="flex flex-wrap gap-3">
+                  <StatTile className="min-w-[140px] flex-1" label="Всего строк" value={String(dedupeState.total)} />
+                  <StatTile className="min-w-[140px] flex-1" label="Уникальных ID" value={String(dedupeState.uniqueCount)} />
+                  <StatTile className="min-w-[140px] flex-1" label="Удалено дублей" value={String(dedupeState.duplicatesRemoved)} />
                 </div>
               </div>
             </div>
@@ -339,6 +341,7 @@ function AppShell() {
                 </CardHeader>
                 <CardContent className="space-y-5 pt-0">
                   <Textarea
+                    className="min-h-[154px]"
                     onChange={(event) => setFormatInput(event.target.value)}
                     placeholder="Вставьте список ID"
                     value={formatInput}
@@ -374,6 +377,7 @@ function AppShell() {
                 <ResultPanel
                   countLabel={`Количество ID: ${formatState.count}`}
                   description=""
+                  minHeightClassName="min-h-[168px]"
                   onCopy={() => copyToClipboard(formatState.output)}
                   title="Преобразованный результат"
                   value={formatState.output}
@@ -390,6 +394,7 @@ function AppShell() {
                 </CardHeader>
                 <CardContent className="space-y-5 pt-0">
                   <Textarea
+                    className="min-h-[154px]"
                     onChange={(event) => setChunkInput(event.target.value)}
                     placeholder="Вставьте большой список ID"
                     value={chunkInput}
@@ -437,7 +442,7 @@ function AppShell() {
                 </CardContent>
               </Card>
 
-              <div className="rounded-[1.4rem] border border-border/70 bg-card/80 px-5 py-4">
+              <div className="rounded-[10px] border border-border/70 bg-card/80 px-5 py-4">
                 <p className="text-sm font-medium">Итого списков: {chunkState.totalLists}</p>
                 <p className="mt-1 text-sm text-muted-foreground">
                   Размер одного блока: {chunkState.chunkSize}. При некорректном вводе используется значение по умолчанию {DEFAULT_CHUNK_SIZE}.
@@ -474,6 +479,7 @@ function AppShell() {
                         Список А
                       </label>
                       <Textarea
+                        className="min-h-[154px]"
                         id="compare-list-a"
                         onChange={(event) => setCompareInputA(event.target.value)}
                         placeholder="Вставьте список А"
@@ -485,6 +491,7 @@ function AppShell() {
                         Список Б
                       </label>
                       <Textarea
+                        className="min-h-[154px]"
                         id="compare-list-b"
                         onChange={(event) => setCompareInputB(event.target.value)}
                         placeholder="Вставьте список Б"
@@ -559,11 +566,19 @@ function AppShell() {
   );
 }
 
-function StatTile({ label, value }: { label: string; value: string }) {
+function StatTile({
+  label,
+  value,
+  className,
+}: {
+  label: string;
+  value: string;
+  className?: string;
+}) {
   return (
-    <div className="rounded-[1.25rem] border border-border/70 bg-background/70 p-4">
+    <div className={cn("rounded-[10px] border border-border/70 bg-background/70 p-4", className)}>
       <p className="text-xs uppercase tracking-[0.24em] text-muted-foreground">{label}</p>
-      <p className="mt-2 font-mono text-lg font-semibold">{value}</p>
+      <p className="mt-2 font-mono text-[14px] font-semibold">{value}</p>
     </div>
   );
 }

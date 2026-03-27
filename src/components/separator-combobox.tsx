@@ -33,7 +33,7 @@ export function SeparatorCombobox({
         {label}
       </label>
       <select
-        className="flex h-11 w-full rounded-xl border border-input bg-background px-3 py-2 text-sm text-foreground shadow-sm transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+        className="flex h-11 w-full rounded-[10px] border border-input bg-background px-3 py-2 text-sm text-foreground shadow-sm transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
         id={id}
         onChange={(event) => {
           const nextMode = event.target.value;
