@@ -1,0 +1,75 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --background: 48 33% 98%;
+  --foreground: 214 37% 15%;
+  --card: 0 0% 100%;
+  --card-foreground: 214 37% 15%;
+  --primary: 207 88% 36%;
+  --primary-foreground: 0 0% 100%;
+  --secondary: 152 45% 92%;
+  --secondary-foreground: 160 84% 14%;
+  --accent: 32 96% 90%;
+  --accent-foreground: 24 88% 20%;
+  --muted: 210 40% 96%;
+  --muted-foreground: 215 16% 40%;
+  --destructive: 0 78% 57%;
+  --destructive-foreground: 0 0% 100%;
+  --border: 214 22% 86%;
+  --input: 214 22% 86%;
+  --ring: 207 88% 36%;
+  --radius: 1rem;
+}
+
+.dark {
+  --background: 217 33% 10%;
+  --foreground: 210 40% 96%;
+  --card: 217 33% 13%;
+  --card-foreground: 210 40% 96%;
+  --primary: 199 89% 60%;
+  --primary-foreground: 214 37% 15%;
+  --secondary: 169 52% 18%;
+  --secondary-foreground: 153 70% 92%;
+  --accent: 32 70% 20%;
+  --accent-foreground: 36 100% 90%;
+  --muted: 217 22% 18%;
+  --muted-foreground: 216 15% 72%;
+  --destructive: 0 70% 44%;
+  --destructive-foreground: 0 0% 100%;
+  --border: 217 18% 26%;
+  --input: 217 18% 26%;
+  --ring: 199 89% 60%;
+}
+
+html {
+  color-scheme: light;
+}
+
+html.dark {
+  color-scheme: dark;
+}
+
+body {
+  @apply min-h-screen bg-background font-sans text-foreground antialiased;
+  background-image:
+    radial-gradient(circle at top left, rgba(14, 165, 233, 0.12), transparent 28%),
+    radial-gradient(circle at top right, rgba(245, 158, 11, 0.14), transparent 22%),
+    linear-gradient(to bottom, rgba(255, 255, 255, 0.72), rgba(255, 255, 255, 0.88));
+}
+
+.dark body {
+  background-image:
+    radial-gradient(circle at top left, rgba(14, 165, 233, 0.15), transparent 26%),
+    radial-gradient(circle at top right, rgba(245, 158, 11, 0.12), transparent 20%),
+    linear-gradient(to bottom, rgba(15, 23, 42, 0.92), rgba(15, 23, 42, 0.98));
+}
+
+* {
+  @apply border-border;
+}
+
+::selection {
+  @apply bg-primary/20 text-foreground;
+}
