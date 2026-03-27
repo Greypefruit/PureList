@@ -544,6 +544,7 @@ function AppShell() {
                 <ResultPanel
                   countLabel={`Уникальные ID: ${compareState.onlyInACount}`}
                   description=""
+                  metricsBelowTitle
                   onCopy={() => copyToClipboard(compareState.onlyInAOutput)}
                   secondaryCountLabel={`Всего значений: ${compareState.countA}`}
                   title="Уникальные в списке А"
@@ -552,6 +553,7 @@ function AppShell() {
                 <ResultPanel
                   countLabel={`Уникальные ID: ${compareState.onlyInBCount}`}
                   description=""
+                  metricsBelowTitle
                   onCopy={() => copyToClipboard(compareState.onlyInBOutput)}
                   secondaryCountLabel={`Всего значений: ${compareState.countB}`}
                   title="Уникальные в списке Б"
