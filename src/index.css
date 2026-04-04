@@ -3,44 +3,44 @@
 @tailwind utilities;
 
 :root {
-  --background: 36 42% 97%;
-  --foreground: 278 18% 18%;
+  --background: 240 5% 96%;
+  --foreground: 240 10% 12%;
   --card: 0 0% 100%;
-  --card-foreground: 278 18% 18%;
-  --primary: 278 20% 22%;
-  --primary-foreground: 40 30% 97%;
-  --secondary: 91 38% 86%;
-  --secondary-foreground: 98 25% 24%;
-  --accent: 37 82% 77%;
-  --accent-foreground: 28 38% 22%;
-  --muted: 28 38% 93%;
-  --muted-foreground: 278 10% 39%;
+  --card-foreground: 240 10% 12%;
+  --primary: 252 75% 60%;
+  --primary-foreground: 0 0% 100%;
+  --secondary: 240 5% 92%;
+  --secondary-foreground: 240 10% 25%;
+  --accent: 252 65% 95%;
+  --accent-foreground: 252 75% 50%;
+  --muted: 240 5% 90%;
+  --muted-foreground: 240 5% 45%;
   --destructive: 0 78% 57%;
   --destructive-foreground: 0 0% 100%;
-  --border: 30 24% 84%;
-  --input: 30 24% 84%;
-  --ring: 90 35% 60%;
-  --radius: 1rem;
+  --border: 240 5% 87%;
+  --input: 240 5% 87%;
+  --ring: 252 75% 60%;
+  --radius: 0.75rem;
 }
 
 .dark {
-  --background: 278 18% 11%;
-  --foreground: 38 28% 95%;
-  --card: 278 16% 14%;
-  --card-foreground: 38 28% 95%;
-  --primary: 36 73% 72%;
-  --primary-foreground: 278 20% 16%;
-  --secondary: 92 24% 26%;
-  --secondary-foreground: 92 35% 86%;
-  --accent: 278 18% 22%;
-  --accent-foreground: 38 28% 95%;
-  --muted: 278 12% 18%;
-  --muted-foreground: 35 16% 76%;
-  --destructive: 0 70% 44%;
+  --background: 240 6% 10%;
+  --foreground: 240 5% 96%;
+  --card: 240 6% 13%;
+  --card-foreground: 240 5% 96%;
+  --primary: 252 75% 65%;
+  --primary-foreground: 240 10% 8%;
+  --secondary: 240 6% 18%;
+  --secondary-foreground: 240 5% 85%;
+  --accent: 252 40% 20%;
+  --accent-foreground: 252 75% 75%;
+  --muted: 240 6% 16%;
+  --muted-foreground: 240 5% 55%;
+  --destructive: 0 70% 50%;
   --destructive-foreground: 0 0% 100%;
-  --border: 278 12% 27%;
-  --input: 278 12% 27%;
-  --ring: 92 26% 52%;
+  --border: 240 6% 20%;
+  --input: 240 6% 20%;
+  --ring: 252 75% 65%;
 }
 
 html {
@@ -53,17 +53,10 @@ html.dark {
 
 body {
   @apply min-h-screen bg-background font-sans text-foreground antialiased;
-  background-image:
-    radial-gradient(circle at top left, rgba(155, 132, 186, 0.14), transparent 28%),
-    radial-gradient(circle at top right, rgba(239, 194, 118, 0.15), transparent 24%),
-    linear-gradient(to bottom, rgba(252, 247, 241, 0.96), rgba(255, 255, 255, 0.99));
 }
 
 .dark body {
-  background-image:
-    radial-gradient(circle at top left, rgba(159, 131, 193, 0.17), transparent 28%),
-    radial-gradient(circle at top right, rgba(233, 179, 93, 0.14), transparent 22%),
-    linear-gradient(to bottom, rgba(29, 22, 37, 0.95), rgba(21, 17, 28, 0.99));
+  background-color: hsl(240 6% 10%);
 }
 
 * {
@@ -72,4 +65,25 @@ body {
 
 ::selection {
   @apply bg-primary/20 text-foreground;
+}
+
+@layer utilities {
+  .scrollbar-thin {
+    scrollbar-width: thin;
+    scrollbar-color: hsl(var(--muted)) transparent;
+  }
+  
+  .scrollbar-thin::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+  
+  .scrollbar-thin::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  
+  .scrollbar-thin::-webkit-scrollbar-thumb {
+    background-color: hsl(var(--muted));
+    border-radius: 3px;
+  }
 }

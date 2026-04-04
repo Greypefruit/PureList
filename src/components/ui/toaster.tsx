@@ -1,5 +1,6 @@
 import { createContext, useCallback, useContext, useEffect, useMemo, useState } from "react";
 import type { PropsWithChildren } from "react";
+import { Check } from "lucide-react";
 import { cn } from "../../lib/utils";
 
 interface ToastItem {
@@ -44,9 +45,12 @@ export function ToastProvider({ children }: PropsWithChildren) {
           <div
             key={item.id}
             className={cn(
-              "rounded-[10px] border border-border/70 bg-card/95 px-4 py-3 text-sm font-medium text-card-foreground shadow-panel backdrop-blur",
+              "flex items-center gap-2 rounded-lg border border-primary/20 bg-card px-4 py-3 text-sm font-medium text-card-foreground shadow-lg animate-in slide-in-from-right-full fade-in duration-200",
             )}
           >
+            <div className="flex h-5 w-5 items-center justify-center rounded-full bg-primary/10">
+              <Check className="h-3 w-3 text-primary" />
+            </div>
             {item.title}
           </div>
         ))}

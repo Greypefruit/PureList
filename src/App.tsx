@@ -1,6 +1,18 @@
 import { useEffect, useMemo, useState } from "react";
+import {
+  Copy,
+  Trash2,
+  Settings,
+  Sparkles,
+  Sun,
+  Moon,
+  Columns2,
+  Split,
+  GitCompare,
+  ChevronDown,
+  Zap,
+} from "lucide-react";
 import { SeparatorCombobox } from "./components/separator-combobox";
-import { ResultPanel } from "./components/result-panel";
 import { Button } from "./components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "./components/ui/card";
 import { Input } from "./components/ui/input";
@@ -24,6 +36,7 @@ interface TabConfig {
   key: TabKey;
   label: string;
   description: string;
+  icon: typeof Sparkles;
 }
 
 interface DedupeState {
@@ -64,32 +77,35 @@ const tabs: TabConfig[] = [
   {
     key: "dedupe",
     label: "Удаление дублей",
-    description: "Инструмент для удаления дубликатов.",
+    description: "Быстрое удаление дубликатов из списка ID или строк",
+    icon: Sparkles,
   },
   {
     key: "format",
     label: "Форматирование",
-    description:
-      "Инструмент позволяет преобразовать список в виде столбца в список строчного вида, добавив любой разделитель и наоборот.",
+    description: "Преобразование разделителей списка в нужный формат",
+    icon: Columns2,
   },
   {
     key: "chunk",
     label: "Разделение",
-    description: "Инструмент для разбивки большого списка на отдельные списки.",
+    description: "Разбивка большого списка на части нужного размера",
+    icon: Split,
   },
   {
     key: "compare",
     label: "Сравнение",
-    description:
-      "Инструмент находит совпадение значений из двух списков и показывает уникальные значения обоих списков.",
+    description: "Сравнение двух списков и поиск пересечений",
+    icon: GitCompare,
   },
 ];
 
 function AppShell() {
   const { toast } = useToast();
-  const [theme, setTheme] = useState<Theme>("light");
+  const [theme, setTheme] = useState<Theme>("dark");
   const [activeTab, setActiveTab] = useState<TabKey>("dedupe");
   const [isProcessing, setIsProcessing] = useState(false);
+  const [showSettings, setShowSettings] = useState(false);
 
   const [dedupeInput, setDedupeInput] = useState("");
   const [dedupeSeparator, setDedupeSeparator] = useState("\n");
@@ -159,7 +175,7 @@ function AppShell() {
       document.execCommand("copy");
       document.body.removeChild(helper);
     }
-    toast("Успешно скопировано!");
+    toast("Скопировано в буфер обмена!");
   }
 
   function runProcessing(task: () => void) {
@@ -228,360 +244,554 @@ function AppShell() {
     });
   }
 
+  const currentTab = tabs.find((tab) => tab.key === activeTab);
+
   return (
-    <div className="relative min-h-screen overflow-hidden">
-      <div className="absolute inset-0 -z-10 bg-grid bg-[size:36px_36px] opacity-50" />
-      <div className="mx-auto flex min-h-screen max-w-[1600px] flex-col gap-6 px-6 py-6 lg:px-10 lg:py-8">
-        <section className="space-y-6">
-          <div className="flex flex-wrap items-center justify-between gap-3">
-            <div className="flex flex-wrap items-center gap-3">
-              {tabs.map((tab) => {
-                const isActive = tab.key === activeTab;
-                return (
-                  <button
-                    key={tab.key}
-                    className={cn(
-                      "rounded-[10px] border px-8 py-2.5 text-left transition duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background",
-                      isActive
-                        ? "border-[#A9BF78] bg-[#D6E3B1] text-[#2E391D] shadow-panel"
-                        : "border-border bg-background/95 text-foreground hover:border-[#E2B96D] hover:bg-[#F4D29C] hover:text-[#52371A]",
-                    )}
-                    onClick={() => setActiveTab(tab.key)}
-                    type="button"
-                  >
-                    <p className={cn("text-[14px] font-semibold leading-tight", isActive ? "text-[#2E391D]" : "text-foreground")}>
-                      {tab.label}
-                    </p>
-                  </button>
-                );
-              })}
+    <div className="min-h-screen bg-background">
+      {/* Header */}
+      <header className="sticky top-0 z-50 border-b border-border bg-background/80 backdrop-blur-xl">
+        <div className="mx-auto flex max-w-7xl items-center justify-between px-4 py-3 sm:px-6">
+          <div className="flex items-center gap-3">
+            <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-primary text-primary-foreground">
+              <Zap className="h-5 w-5" />
             </div>
+            <span className="text-lg font-semibold tracking-tight">PureList</span>
+          </div>
+          <div className="flex items-center gap-2">
             <Button
-              variant="outline"
-              onClick={() => setTheme((current) => (current === "light" ? "dark" : "light"))}
+              variant="ghost"
+              size="icon"
+              onClick={() => setShowSettings(!showSettings)}
+              className="rounded-lg"
             >
-              {theme === "light" ? "Тёмная тема" : "Светлая тема"}
+              <Settings className="h-4 w-4" />
+            </Button>
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={() => setTheme((current) => (current === "light" ? "dark" : "light"))}
+              className="rounded-lg"
+            >
+              {theme === "light" ? <Moon className="h-4 w-4" /> : <Sun className="h-4 w-4" />}
             </Button>
           </div>
+        </div>
+      </header>
 
-          <Card className="inline-flex w-fit max-w-full border-[#E2B96D] bg-[#F4D29C] text-[#52371A]">
-            <CardContent className="px-5 py-3.5">
-              <p className="text-sm leading-7 text-[#52371A]/88">
-                {tabs.find((tab) => tab.key === activeTab)?.description}
-              </p>
-            </CardContent>
-          </Card>
+      <main className="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:py-8">
+        {/* Tab Navigation */}
+        <div className="mb-6">
+          <div className="flex flex-wrap gap-2">
+            {tabs.map((tab) => {
+              const isActive = tab.key === activeTab;
+              const Icon = tab.icon;
+              return (
+                <button
+                  key={tab.key}
+                  className={cn(
+                    "flex items-center gap-2 rounded-lg px-4 py-2 text-sm font-medium transition-all duration-200",
+                    isActive
+                      ? "bg-primary text-primary-foreground shadow-sm"
+                      : "bg-secondary text-secondary-foreground hover:bg-secondary/80",
+                  )}
+                  onClick={() => setActiveTab(tab.key)}
+                  type="button"
+                >
+                  <Icon className="h-4 w-4" />
+                  <span className="hidden sm:inline">{tab.label}</span>
+                </button>
+              );
+            })}
+          </div>
+          <p className="mt-3 text-sm text-muted-foreground">{currentTab?.description}</p>
+        </div>
 
-          {activeTab === "dedupe" ? (
-            <div className="grid gap-6 xl:grid-cols-[1fr_0.95fr]">
-              <Card>
-                <CardHeader className="pb-4">
-                  <CardTitle>Удаление дублей</CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-5 pt-0">
-                  <Textarea
-                    className="min-h-[154px]"
-                    onChange={(event) => setDedupeInput(event.target.value)}
-                    placeholder="Вставьте список ID в любом популярном формате"
-                    value={dedupeInput}
-                  />
-                  <SeparatorCombobox
-                    id="dedupe-separator"
-                    label="Разделитель результата"
-                    onChange={setDedupeSeparator}
-                    value={dedupeSeparator}
-                  />
-                  <div className="flex flex-wrap gap-3">
-                    <Button onClick={handleDedupe}>
-                      {isProcessing ? "Обработка..." : "Очистить список"}
-                    </Button>
-                    <Button
-                      onClick={() => {
-                        setDedupeInput("");
-                        setDedupeSeparator("\n");
-                        setDedupeState({
-                          output: "",
-                          total: 0,
-                          uniqueCount: 0,
-                          duplicatesRemoved: 0,
-                        });
-                      }}
-                      variant="outline"
-                    >
-                      Очистить всё
-                    </Button>
-                  </div>
-                </CardContent>
-              </Card>
-
-              <div className="space-y-6">
-                <ResultPanel
-                  countLabel={`Уникальных ID: ${dedupeState.uniqueCount}`}
-                  description=""
-                  minHeightClassName="min-h-[168px]"
-                  onCopy={() => copyToClipboard(dedupeState.output)}
-                  secondaryCountLabel={`Удалено дублей: ${dedupeState.duplicatesRemoved}`}
-                  title="Результат"
-                  value={dedupeState.output}
+        {/* Settings Panel */}
+        {showSettings && (
+          <Card className="mb-6">
+            <CardHeader className="pb-3">
+              <CardTitle className="flex items-center gap-2">
+                <Settings className="h-4 w-4" />
+                Настройки
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="pt-0">
+              {activeTab === "dedupe" && (
+                <SeparatorCombobox
+                  id="dedupe-separator"
+                  label="Разделитель результата"
+                  onChange={setDedupeSeparator}
+                  value={dedupeSeparator}
                 />
-                <div className="flex flex-wrap gap-3">
-                  <StatTile className="min-w-[140px] flex-1" label="Всего строк" value={String(dedupeState.total)} />
-                  <StatTile className="min-w-[140px] flex-1" label="Уникальных ID" value={String(dedupeState.uniqueCount)} />
-                  <StatTile className="min-w-[140px] flex-1" label="Удалено дублей" value={String(dedupeState.duplicatesRemoved)} />
-                </div>
-              </div>
-            </div>
-          ) : null}
-
-          {activeTab === "format" ? (
-            <div className="grid gap-6 xl:grid-cols-[1fr_0.95fr]">
-              <Card>
-                <CardHeader className="pb-4">
-                  <CardTitle>Трансформация / Форматирование</CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-5 pt-0">
-                  <Textarea
-                    className="min-h-[154px]"
-                    onChange={(event) => setFormatInput(event.target.value)}
-                    placeholder="Вставьте список ID"
-                    value={formatInput}
-                  />
-                  <SeparatorCombobox
-                    id="format-separator"
-                    label="Разделитель результата"
-                    onChange={setFormatSeparator}
-                    value={formatSeparator}
-                  />
-                  <div className="flex flex-wrap gap-3">
-                    <Button onClick={handleFormat}>
-                      {isProcessing ? "Обработка..." : "Преобразовать"}
-                    </Button>
-                    <Button
-                      onClick={() => {
-                        setFormatInput("");
-                        setFormatSeparator("\n");
-                        setFormatState({
-                          output: "",
-                          count: 0,
-                        });
-                      }}
-                      variant="outline"
-                    >
-                      Очистить всё
-                    </Button>
-                  </div>
-                </CardContent>
-              </Card>
-
-              <div className="space-y-6">
-                <ResultPanel
-                  countLabel={`Количество ID: ${formatState.count}`}
-                  description=""
-                  minHeightClassName="min-h-[168px]"
-                  onCopy={() => copyToClipboard(formatState.output)}
-                  title="Преобразованный результат"
-                  value={formatState.output}
+              )}
+              {activeTab === "format" && (
+                <SeparatorCombobox
+                  id="format-separator"
+                  label="Разделитель результата"
+                  onChange={setFormatSeparator}
+                  value={formatSeparator}
                 />
-              </div>
-            </div>
-          ) : null}
-
-          {activeTab === "chunk" ? (
-            <div className="space-y-6">
-              <Card>
-                <CardHeader className="pb-4">
-                  <CardTitle>Разделение</CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-5 pt-0">
-                  <Textarea
-                    className="min-h-[154px]"
-                    onChange={(event) => setChunkInput(event.target.value)}
-                    placeholder="Вставьте большой список ID"
-                    value={chunkInput}
-                  />
-                  <div className="grid gap-4 lg:grid-cols-[220px_1fr]">
-                    <div className="space-y-2">
-                      <label className="text-sm font-medium" htmlFor="chunk-size">
-                        Сколько ID в одном списке?
-                      </label>
-                      <Input
-                        id="chunk-size"
-                        inputMode="numeric"
-                        min={1}
-                        onChange={(event) => setChunkSizeInput(event.target.value)}
-                        value={chunkSizeInput}
-                      />
-                    </div>
-                    <SeparatorCombobox
-                      id="chunk-separator"
-                      label="Разделитель внутри каждого куска"
-                      onChange={setChunkSeparator}
-                      value={chunkSeparator}
+              )}
+              {activeTab === "chunk" && (
+                <div className="grid gap-4 sm:grid-cols-2">
+                  <div className="space-y-2">
+                    <label className="text-sm font-medium" htmlFor="chunk-size">
+                      Размер блока
+                    </label>
+                    <Input
+                      id="chunk-size"
+                      inputMode="numeric"
+                      min={1}
+                      onChange={(event) => setChunkSizeInput(event.target.value)}
+                      value={chunkSizeInput}
                     />
                   </div>
-                  <div className="flex flex-wrap gap-3">
-                    <Button onClick={handleChunk}>
-                      {isProcessing ? "Обработка..." : "Разделить"}
-                    </Button>
-                    <Button
-                      onClick={() => {
-                        setChunkInput("");
-                        setChunkSeparator("\n");
-                        setChunkSizeInput(String(DEFAULT_CHUNK_SIZE));
-                        setChunkState({
-                          totalLists: 0,
-                          chunkSize: DEFAULT_CHUNK_SIZE,
-                          chunks: [],
-                        });
-                      }}
-                      variant="outline"
-                    >
-                      Очистить всё
-                    </Button>
-                  </div>
-                </CardContent>
-              </Card>
-
-              <div className="rounded-[10px] border border-border/70 bg-card/80 px-5 py-4">
-                <p className="text-sm font-medium">Итого списков: {chunkState.totalLists}</p>
-                <p className="mt-1 text-sm text-muted-foreground">
-                  Размер одного блока: {chunkState.chunkSize}. При некорректном вводе используется значение по умолчанию {DEFAULT_CHUNK_SIZE}.
-                </p>
-              </div>
-
-              <div className="grid gap-5 xl:grid-cols-2 2xl:grid-cols-3">
-                {chunkState.chunks.map((chunk) => (
-                  <ResultPanel
-                    key={chunk.id}
-                    actionLabel="Скопировать"
-                    countLabel={`ID: ${chunk.count}/${chunkState.chunkSize}`}
-                    description="Готовый фрагмент списка."
-                    minHeightClassName="min-h-[220px]"
-                    onCopy={() => copyToClipboard(chunk.output)}
-                    title={chunk.label}
-                    value={chunk.output}
-                  />
-                ))}
-              </div>
-            </div>
-          ) : null}
-
-          {activeTab === "compare" ? (
-            <div className="space-y-6">
-              <Card>
-                <CardHeader className="pb-4">
-                  <CardTitle>Сравнение списков</CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-5 pt-0">
-                  <div className="grid gap-4 xl:grid-cols-2">
-                    <div className="space-y-2">
-                      <label className="text-sm font-medium" htmlFor="compare-list-a">
-                        Список А
-                      </label>
-                      <Textarea
-                        className="min-h-[154px]"
-                        id="compare-list-a"
-                        onChange={(event) => setCompareInputA(event.target.value)}
-                        placeholder="Вставьте список А"
-                        value={compareInputA}
-                      />
-                    </div>
-                    <div className="space-y-2">
-                      <label className="text-sm font-medium" htmlFor="compare-list-b">
-                        Список Б
-                      </label>
-                      <Textarea
-                        className="min-h-[154px]"
-                        id="compare-list-b"
-                        onChange={(event) => setCompareInputB(event.target.value)}
-                        placeholder="Вставьте список Б"
-                        value={compareInputB}
-                      />
-                    </div>
-                  </div>
                   <SeparatorCombobox
-                    id="compare-separator"
-                    label="Разделитель результата"
-                    onChange={setCompareSeparator}
-                    value={compareSeparator}
+                    id="chunk-separator"
+                    label="Разделитель внутри блока"
+                    onChange={setChunkSeparator}
+                    value={chunkSeparator}
                   />
-                  <div className="flex flex-wrap gap-3">
-                    <Button onClick={handleCompare}>
-                      {isProcessing ? "Обработка..." : "Сравнить"}
-                    </Button>
+                </div>
+              )}
+              {activeTab === "compare" && (
+                <SeparatorCombobox
+                  id="compare-separator"
+                  label="Разделитель результата"
+                  onChange={setCompareSeparator}
+                  value={compareSeparator}
+                />
+              )}
+            </CardContent>
+          </Card>
+        )}
+
+        {/* Dedupe Tab */}
+        {activeTab === "dedupe" && (
+          <div className="grid gap-4 lg:grid-cols-2">
+            {/* Input Panel */}
+            <Card>
+              <CardHeader className="pb-3">
+                <div className="flex items-center justify-between">
+                  <CardTitle>Исходный список</CardTitle>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => {
+                      setDedupeInput("");
+                      setDedupeState({
+                        output: "",
+                        total: 0,
+                        uniqueCount: 0,
+                        duplicatesRemoved: 0,
+                      });
+                    }}
+                    className="h-8 gap-1.5 text-muted-foreground hover:text-foreground"
+                  >
+                    <Trash2 className="h-3.5 w-3.5" />
+                    <span className="hidden sm:inline">Очистить</span>
+                  </Button>
+                </div>
+              </CardHeader>
+              <CardContent className="space-y-4 pt-0">
+                <Textarea
+                  className="min-h-[240px]"
+                  onChange={(event) => setDedupeInput(event.target.value)}
+                  placeholder="Вставьте список ID или строк в любом формате..."
+                  value={dedupeInput}
+                />
+                <Button onClick={handleDedupe} className="w-full sm:w-auto">
+                  <Sparkles className="h-4 w-4" />
+                  {isProcessing ? "Обработка..." : "Удалить дубликаты"}
+                </Button>
+              </CardContent>
+            </Card>
+
+            {/* Output Panel */}
+            <Card>
+              <CardHeader className="pb-3">
+                <div className="flex items-center justify-between">
+                  <CardTitle>Результат</CardTitle>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => copyToClipboard(dedupeState.output)}
+                    disabled={!dedupeState.output}
+                    className="h-8 gap-1.5 text-muted-foreground hover:text-foreground"
+                  >
+                    <Copy className="h-3.5 w-3.5" />
+                    <span className="hidden sm:inline">Скопировать</span>
+                  </Button>
+                </div>
+              </CardHeader>
+              <CardContent className="space-y-4 pt-0">
+                <Textarea
+                  className="min-h-[240px]"
+                  readOnly
+                  value={dedupeState.output}
+                  placeholder="Результат появится здесь..."
+                />
+                {/* Stats Bar */}
+                <div className="grid grid-cols-3 gap-3">
+                  <StatCard label="Всего строк" value={dedupeState.total} />
+                  <StatCard label="Уникальных" value={dedupeState.uniqueCount} variant="primary" />
+                  <StatCard label="Удалено" value={dedupeState.duplicatesRemoved} variant="accent" />
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+        )}
+
+        {/* Format Tab */}
+        {activeTab === "format" && (
+          <div className="grid gap-4 lg:grid-cols-2">
+            <Card>
+              <CardHeader className="pb-3">
+                <div className="flex items-center justify-between">
+                  <CardTitle>Исходный список</CardTitle>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => {
+                      setFormatInput("");
+                      setFormatState({ output: "", count: 0 });
+                    }}
+                    className="h-8 gap-1.5 text-muted-foreground hover:text-foreground"
+                  >
+                    <Trash2 className="h-3.5 w-3.5" />
+                    <span className="hidden sm:inline">Очистить</span>
+                  </Button>
+                </div>
+              </CardHeader>
+              <CardContent className="space-y-4 pt-0">
+                <Textarea
+                  className="min-h-[240px]"
+                  onChange={(event) => setFormatInput(event.target.value)}
+                  placeholder="Вставьте список ID..."
+                  value={formatInput}
+                />
+                <Button onClick={handleFormat} className="w-full sm:w-auto">
+                  <Columns2 className="h-4 w-4" />
+                  {isProcessing ? "Обработка..." : "Преобразовать"}
+                </Button>
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardHeader className="pb-3">
+                <div className="flex items-center justify-between">
+                  <CardTitle>Результат</CardTitle>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => copyToClipboard(formatState.output)}
+                    disabled={!formatState.output}
+                    className="h-8 gap-1.5 text-muted-foreground hover:text-foreground"
+                  >
+                    <Copy className="h-3.5 w-3.5" />
+                    <span className="hidden sm:inline">Скопировать</span>
+                  </Button>
+                </div>
+              </CardHeader>
+              <CardContent className="space-y-4 pt-0">
+                <Textarea
+                  className="min-h-[240px]"
+                  readOnly
+                  value={formatState.output}
+                  placeholder="Результат появится здесь..."
+                />
+                <div className="grid grid-cols-1 gap-3">
+                  <StatCard label="Количество элементов" value={formatState.count} variant="primary" />
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+        )}
+
+        {/* Chunk Tab */}
+        {activeTab === "chunk" && (
+          <div className="space-y-4">
+            <Card>
+              <CardHeader className="pb-3">
+                <div className="flex items-center justify-between">
+                  <CardTitle>Исходный список</CardTitle>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => {
+                      setChunkInput("");
+                      setChunkState({
+                        totalLists: 0,
+                        chunkSize: DEFAULT_CHUNK_SIZE,
+                        chunks: [],
+                      });
+                    }}
+                    className="h-8 gap-1.5 text-muted-foreground hover:text-foreground"
+                  >
+                    <Trash2 className="h-3.5 w-3.5" />
+                    <span className="hidden sm:inline">Очистить</span>
+                  </Button>
+                </div>
+              </CardHeader>
+              <CardContent className="space-y-4 pt-0">
+                <Textarea
+                  className="min-h-[160px]"
+                  onChange={(event) => setChunkInput(event.target.value)}
+                  placeholder="Вставьте большой список ID..."
+                  value={chunkInput}
+                />
+                <Button onClick={handleChunk} className="w-full sm:w-auto">
+                  <Split className="h-4 w-4" />
+                  {isProcessing ? "Обработка..." : "Разделить"}
+                </Button>
+              </CardContent>
+            </Card>
+
+            {chunkState.chunks.length > 0 && (
+              <>
+                <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+                  <StatCard label="Всего списков" value={chunkState.totalLists} variant="primary" />
+                  <StatCard label="Размер блока" value={chunkState.chunkSize} />
+                </div>
+                <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
+                  {chunkState.chunks.map((chunk) => (
+                    <Card key={chunk.id}>
+                      <CardHeader className="pb-3">
+                        <div className="flex items-center justify-between">
+                          <CardTitle className="flex items-center gap-2">
+                            {chunk.label}
+                            <span className="rounded-md bg-primary/10 px-2 py-0.5 text-xs font-medium text-primary">
+                              {chunk.count} ID
+                            </span>
+                          </CardTitle>
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            onClick={() => copyToClipboard(chunk.output)}
+                            className="h-8 w-8"
+                          >
+                            <Copy className="h-3.5 w-3.5" />
+                          </Button>
+                        </div>
+                      </CardHeader>
+                      <CardContent className="pt-0">
+                        <Textarea className="min-h-[140px]" readOnly value={chunk.output} />
+                      </CardContent>
+                    </Card>
+                  ))}
+                </div>
+              </>
+            )}
+          </div>
+        )}
+
+        {/* Compare Tab */}
+        {activeTab === "compare" && (
+          <div className="space-y-4">
+            <div className="grid gap-4 md:grid-cols-2">
+              <Card>
+                <CardHeader className="pb-3">
+                  <div className="flex items-center justify-between">
+                    <CardTitle>Список A</CardTitle>
                     <Button
-                      onClick={() => {
-                        setCompareInputA("");
-                        setCompareInputB("");
-                        setCompareSeparator("\n");
-                        setCompareState({
-                          countA: 0,
-                          countB: 0,
-                          intersectionOutput: "",
-                          intersectionCount: 0,
-                          onlyInAOutput: "",
-                          onlyInACount: 0,
-                          onlyInBOutput: "",
-                          onlyInBCount: 0,
-                        });
-                      }}
-                      variant="outline"
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => setCompareInputA("")}
+                      className="h-8 gap-1.5 text-muted-foreground hover:text-foreground"
                     >
-                      Очистить всё
+                      <Trash2 className="h-3.5 w-3.5" />
                     </Button>
                   </div>
+                </CardHeader>
+                <CardContent className="pt-0">
+                  <Textarea
+                    className="min-h-[140px]"
+                    onChange={(event) => setCompareInputA(event.target.value)}
+                    placeholder="Вставьте первый список..."
+                    value={compareInputA}
+                  />
                 </CardContent>
               </Card>
 
-              <div className="grid gap-6 xl:grid-cols-3">
-                <ResultPanel
-                  countLabel={`Совпадений: ${compareState.intersectionCount}`}
-                  description=""
-                  onCopy={() => copyToClipboard(compareState.intersectionOutput)}
-                  title="Совпадения"
-                  value={compareState.intersectionOutput}
-                />
-                <ResultPanel
-                  countLabel={`Уникальные ID: ${compareState.onlyInACount}`}
-                  description=""
-                  metricsBelowTitle
-                  onCopy={() => copyToClipboard(compareState.onlyInAOutput)}
-                  secondaryCountLabel={`Всего значений: ${compareState.countA}`}
-                  title="Уникальные в списке А"
-                  value={compareState.onlyInAOutput}
-                />
-                <ResultPanel
-                  countLabel={`Уникальные ID: ${compareState.onlyInBCount}`}
-                  description=""
-                  metricsBelowTitle
-                  onCopy={() => copyToClipboard(compareState.onlyInBOutput)}
-                  secondaryCountLabel={`Всего значений: ${compareState.countB}`}
-                  title="Уникальные в списке Б"
-                  value={compareState.onlyInBOutput}
-                />
-              </div>
+              <Card>
+                <CardHeader className="pb-3">
+                  <div className="flex items-center justify-between">
+                    <CardTitle>Список B</CardTitle>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => setCompareInputB("")}
+                      className="h-8 gap-1.5 text-muted-foreground hover:text-foreground"
+                    >
+                      <Trash2 className="h-3.5 w-3.5" />
+                    </Button>
+                  </div>
+                </CardHeader>
+                <CardContent className="pt-0">
+                  <Textarea
+                    className="min-h-[140px]"
+                    onChange={(event) => setCompareInputB(event.target.value)}
+                    placeholder="Вставьте второй список..."
+                    value={compareInputB}
+                  />
+                </CardContent>
+              </Card>
             </div>
-          ) : null}
-        </section>
-      </div>
+
+            <div className="flex flex-wrap gap-3">
+              <Button onClick={handleCompare}>
+                <GitCompare className="h-4 w-4" />
+                {isProcessing ? "Обработка..." : "Сравнить списки"}
+              </Button>
+              <Button
+                variant="outline"
+                onClick={() => {
+                  setCompareInputA("");
+                  setCompareInputB("");
+                  setCompareState({
+                    countA: 0,
+                    countB: 0,
+                    intersectionOutput: "",
+                    intersectionCount: 0,
+                    onlyInAOutput: "",
+                    onlyInACount: 0,
+                    onlyInBOutput: "",
+                    onlyInBCount: 0,
+                  });
+                }}
+              >
+                <Trash2 className="h-4 w-4" />
+                Очистить всё
+              </Button>
+            </div>
+
+            {(compareState.intersectionCount > 0 ||
+              compareState.onlyInACount > 0 ||
+              compareState.onlyInBCount > 0) && (
+              <>
+                <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+                  <StatCard label="В списке A" value={compareState.countA} />
+                  <StatCard label="В списке B" value={compareState.countB} />
+                  <StatCard label="Совпадений" value={compareState.intersectionCount} variant="primary" />
+                  <StatCard
+                    label="Уникальных"
+                    value={compareState.onlyInACount + compareState.onlyInBCount}
+                    variant="accent"
+                  />
+                </div>
+
+                <div className="grid gap-4 lg:grid-cols-3">
+                  <CompareResultCard
+                    title="Совпадения"
+                    count={compareState.intersectionCount}
+                    output={compareState.intersectionOutput}
+                    onCopy={() => copyToClipboard(compareState.intersectionOutput)}
+                    variant="primary"
+                  />
+                  <CompareResultCard
+                    title="Только в A"
+                    count={compareState.onlyInACount}
+                    output={compareState.onlyInAOutput}
+                    onCopy={() => copyToClipboard(compareState.onlyInAOutput)}
+                  />
+                  <CompareResultCard
+                    title="Только в B"
+                    count={compareState.onlyInBCount}
+                    output={compareState.onlyInBOutput}
+                    onCopy={() => copyToClipboard(compareState.onlyInBOutput)}
+                  />
+                </div>
+              </>
+            )}
+          </div>
+        )}
+      </main>
     </div>
   );
 }
 
-function StatTile({
+function StatCard({
   label,
   value,
-  className,
+  variant = "default",
 }: {
   label: string;
-  value: string;
-  className?: string;
+  value: number;
+  variant?: "default" | "primary" | "accent";
 }) {
   return (
-    <div className={cn("rounded-[10px] border border-border/70 bg-background/70 p-4", className)}>
-      <p className="text-xs uppercase tracking-[0.24em] text-muted-foreground">{label}</p>
-      <p className="mt-2 font-mono text-[14px] font-semibold">{value}</p>
+    <div
+      className={cn(
+        "rounded-lg border p-3 transition-all duration-200",
+        variant === "default" && "border-border bg-card",
+        variant === "primary" && "border-primary/20 bg-primary/5",
+        variant === "accent" && "border-accent-foreground/20 bg-accent",
+      )}
+    >
+      <p className="text-xs font-medium uppercase tracking-wider text-muted-foreground">{label}</p>
+      <p
+        className={cn(
+          "mt-1 font-mono text-xl font-semibold tabular-nums",
+          variant === "primary" && "text-primary",
+          variant === "accent" && "text-accent-foreground",
+        )}
+      >
+        {value.toLocaleString()}
+      </p>
     </div>
+  );
+}
+
+function CompareResultCard({
+  title,
+  count,
+  output,
+  onCopy,
+  variant = "default",
+}: {
+  title: string;
+  count: number;
+  output: string;
+  onCopy: () => void;
+  variant?: "default" | "primary";
+}) {
+  return (
+    <Card className={cn(variant === "primary" && "border-primary/30")}>
+      <CardHeader className="pb-3">
+        <div className="flex items-center justify-between">
+          <CardTitle className="flex items-center gap-2">
+            {title}
+            <span
+              className={cn(
+                "rounded-md px-2 py-0.5 text-xs font-medium",
+                variant === "primary"
+                  ? "bg-primary/10 text-primary"
+                  : "bg-muted text-muted-foreground",
+              )}
+            >
+              {count}
+            </span>
+          </CardTitle>
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={onCopy}
+            disabled={!output}
+            className="h-8 w-8"
+          >
+            <Copy className="h-3.5 w-3.5" />
+          </Button>
+        </div>
+      </CardHeader>
+      <CardContent className="pt-0">
+        <Textarea
+          className="min-h-[160px]"
+          readOnly
+          value={output}
+          placeholder="Нет данных"
+        />
+      </CardContent>
+    </Card>
   );
 }
 
