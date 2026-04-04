@@ -45,7 +45,7 @@ export function ToastProvider({ children }: PropsWithChildren) {
           <div
             key={item.id}
             className={cn(
-              "flex items-center gap-2 rounded-lg border border-primary/20 bg-card px-4 py-3 text-sm font-medium text-card-foreground shadow-lg animate-in slide-in-from-right-full fade-in duration-200",
+              "flex items-center gap-2 rounded-lg border border-primary/20 bg-card px-4 py-3 text-sm font-medium text-card-foreground shadow-lg animate-slide-in-from-right-full animate-fade-in",
             )}
           >
             <div className="flex h-5 w-5 items-center justify-center rounded-full bg-primary/10">
