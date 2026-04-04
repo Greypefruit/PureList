@@ -795,9 +795,18 @@ function CompareResultCard({
 }
 
 export default function App() {
+  // Temporary test - remove after debugging
   return (
-    <ToastProvider>
-      <AppShell />
-    </ToastProvider>
+    <div style={{ padding: "50px", backgroundColor: "black", color: "white", minHeight: "100vh" }}>
+      <h1 style={{ fontSize: "48px" }}>HELLO WORLD</h1>
+      <p>If you see this, React is mounting correctly.</p>
+    </div>
   );
+  
+  // Original code - uncomment after test
+  // return (
+  //   <ToastProvider>
+  //     <AppShell />
+  //   </ToastProvider>
+  // );
 }
