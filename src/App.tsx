@@ -1,7 +1,7 @@
 export default function App() {
   return (
-    <div style={{ background: 'red', color: 'white', padding: '100px', fontSize: '32px' }}>
-      V0 IS WORKING
+    <div style={{ color: "black", fontSize: "40px", padding: "50px" }}>
+      TEST: READY TO DESIGN
     </div>
   )
 }
