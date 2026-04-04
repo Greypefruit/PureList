@@ -100,7 +100,6 @@ const tabs: TabConfig[] = [
 ];
 
 function AppShell() {
-  console.log("[v0] AppShell component mounting");
   const { toast } = useToast();
   const [theme, setTheme] = useState<Theme>("dark");
   const [activeTab, setActiveTab] = useState<TabKey>("dedupe");

@@ -52,15 +52,22 @@ html.dark {
 }
 
 body {
-  @apply min-h-screen bg-background font-sans text-foreground antialiased;
+  min-height: 100vh;
+  background-color: hsl(var(--background));
+  color: hsl(var(--foreground));
+  font-family: "Inter", system-ui, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
-.dark body {
-  background-color: hsl(240 6% 10%);
+#root {
+  min-height: 100vh;
 }
 
-* {
-  @apply border-border;
+@layer base {
+  * {
+    border-color: hsl(var(--border));
+  }
 }
 
 ::selection {
