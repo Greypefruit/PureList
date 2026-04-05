@@ -1,8 +1,23 @@
 import { useEffect, useMemo, useState } from "react";
+import type { ReactNode } from "react";
+import {
+  CheckCheck,
+  ChevronRight,
+  ClipboardCopy,
+  Columns2,
+  GitCompareArrows,
+  Moon,
+  Palette,
+  ScissorsLineDashed,
+  Sparkles,
+  Sun,
+  WandSparkles,
+  X,
+} from "lucide-react";
 import { SeparatorCombobox } from "./components/separator-combobox";
-import { ResultPanel } from "./components/result-panel";
+import { Badge } from "./components/ui/badge";
 import { Button } from "./components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "./components/ui/card";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "./components/ui/card";
 import { Input } from "./components/ui/input";
 import { Textarea } from "./components/ui/textarea";
 import { ToastProvider, useToast } from "./components/ui/toaster";
@@ -24,64 +39,38 @@ interface TabConfig {
   key: TabKey;
   label: string;
   description: string;
-}
-
-interface DedupeState {
-  output: string;
-  total: number;
-  uniqueCount: number;
-  duplicatesRemoved: number;
-}
-
-interface FormatState {
-  output: string;
-  count: number;
-}
-
-interface ChunkState {
-  totalLists: number;
-  chunkSize: number;
-  chunks: Array<{
-    id: string;
-    label: string;
-    output: string;
-    count: number;
-  }>;
-}
-
-interface CompareState {
-  countA: number;
-  countB: number;
-  intersectionOutput: string;
-  intersectionCount: number;
-  onlyInAOutput: string;
-  onlyInACount: number;
-  onlyInBOutput: string;
-  onlyInBCount: number;
+  icon: typeof CheckCheck;
+  accent: string;
 }
 
 const tabs: TabConfig[] = [
   {
     key: "dedupe",
     label: "Удаление дублей",
-    description: "Инструмент для удаления дубликатов.",
+    description: "Очищает список и оставляет только первые вхождения.",
+    icon: CheckCheck,
+    accent: "from-indigo-500/20 via-violet-500/10 to-transparent",
   },
   {
     key: "format",
     label: "Форматирование",
-    description:
-      "Инструмент позволяет преобразовать список в виде столбца в список строчного вида, добавив любой разделитель и наоборот.",
+    description: "Приводит список к нужному виду и разделителю.",
+    icon: WandSparkles,
+    accent: "from-fuchsia-500/20 via-indigo-500/10 to-transparent",
   },
   {
     key: "chunk",
     label: "Разделение",
-    description: "Инструмент для разбивки большого списка на отдельные списки.",
+    description: "Делит длинный список на несколько удобных частей.",
+    icon: Columns2,
+    accent: "from-sky-500/20 via-indigo-500/10 to-transparent",
   },
   {
     key: "compare",
     label: "Сравнение",
-    description:
-      "Инструмент находит совпадение значений из двух списков и показывает уникальные значения обоих списков.",
+    description: "Показывает пересечения и отличия двух списков.",
+    icon: GitCompareArrows,
+    accent: "from-emerald-500/20 via-indigo-500/10 to-transparent",
   },
 ];
 
@@ -89,46 +78,20 @@ function AppShell() {
   const { toast } = useToast();
   const [theme, setTheme] = useState<Theme>("light");
   const [activeTab, setActiveTab] = useState<TabKey>("dedupe");
-  const [isProcessing, setIsProcessing] = useState(false);
 
   const [dedupeInput, setDedupeInput] = useState("");
   const [dedupeSeparator, setDedupeSeparator] = useState("\n");
-  const [dedupeState, setDedupeState] = useState<DedupeState>({
-    output: "",
-    total: 0,
-    uniqueCount: 0,
-    duplicatesRemoved: 0,
-  });
 
   const [formatInput, setFormatInput] = useState("");
-  const [formatSeparator, setFormatSeparator] = useState("\n");
-  const [formatState, setFormatState] = useState<FormatState>({
-    output: "",
-    count: 0,
-  });
+  const [formatSeparator, setFormatSeparator] = useState(", ");
 
   const [chunkInput, setChunkInput] = useState("");
   const [chunkSeparator, setChunkSeparator] = useState("\n");
   const [chunkSizeInput, setChunkSizeInput] = useState(String(DEFAULT_CHUNK_SIZE));
-  const [chunkState, setChunkState] = useState<ChunkState>({
-    totalLists: 0,
-    chunkSize: DEFAULT_CHUNK_SIZE,
-    chunks: [],
-  });
 
   const [compareInputA, setCompareInputA] = useState("");
   const [compareInputB, setCompareInputB] = useState("");
   const [compareSeparator, setCompareSeparator] = useState("\n");
-  const [compareState, setCompareState] = useState<CompareState>({
-    countA: 0,
-    countB: 0,
-    intersectionOutput: "",
-    intersectionCount: 0,
-    onlyInAOutput: "",
-    onlyInACount: 0,
-    onlyInBOutput: "",
-    onlyInBCount: 0,
-  });
 
   useEffect(() => {
     const storedTheme = window.localStorage.getItem("purelist-theme");
@@ -143,9 +106,63 @@ function AppShell() {
     window.localStorage.setItem("purelist-theme", theme);
   }, [theme]);
 
+  const dedupeStats = useMemo(() => {
+    const result = deduplicateIds(dedupeInput);
+    return {
+      output: formatOutput(result.uniqueItems, dedupeSeparator),
+      total: result.total,
+      uniqueCount: result.uniqueItems.length,
+      duplicatesRemoved: result.duplicatesRemoved,
+    };
+  }, [dedupeInput, dedupeSeparator]);
+
+  const formatStats = useMemo(() => {
+    const { items } = parseIds(formatInput);
+    return {
+      output: formatOutput(items, formatSeparator),
+      count: items.length,
+    };
+  }, [formatInput, formatSeparator]);
+
   const chunkSize = useMemo(() => clampChunkSize(Number(chunkSizeInput)), [chunkSizeInput]);
 
-  async function copyToClipboard(value: string) {
+  const chunkStats = useMemo(() => {
+    const chunks = chunkIds(chunkInput, chunkSize).map((chunk, index) => ({
+      id: chunk.id,
+      label: `Часть ${index + 1}`,
+      output: formatOutput(chunk.items, chunkSeparator),
+      count: chunk.items.length,
+    }));
+
+    const totalItems = parseIds(chunkInput).items.length;
+
+    return {
+      chunkSize,
+      totalItems,
+      totalLists: chunks.length,
+      chunks,
+    };
+  }, [chunkInput, chunkSeparator, chunkSize]);
+
+  const compareStats = useMemo(() => {
+    const result = compareLists(compareInputA, compareInputB);
+    return {
+      countA: result.countA,
+      countB: result.countB,
+      intersectionOutput: formatOutput(result.intersection, compareSeparator),
+      intersectionCount: result.intersection.length,
+      onlyInAOutput: formatOutput(result.onlyInA, compareSeparator),
+      onlyInACount: result.onlyInA.length,
+      onlyInBOutput: formatOutput(result.onlyInB, compareSeparator),
+      onlyInBCount: result.onlyInB.length,
+    };
+  }, [compareInputA, compareInputB, compareSeparator]);
+
+  async function copyToClipboard(value: string, successMessage = "Скопировано") {
+    if (!value) {
+      return;
+    }
+
     if (navigator.clipboard?.writeText) {
       await navigator.clipboard.writeText(value);
     } else {
@@ -159,428 +176,568 @@ function AppShell() {
       document.execCommand("copy");
       document.body.removeChild(helper);
     }
-    toast("Успешно скопировано!");
+
+    toast(successMessage);
   }
 
-  function runProcessing(task: () => void) {
-    setIsProcessing(true);
-    window.setTimeout(() => {
-      try {
-        task();
-      } finally {
-        setIsProcessing(false);
-      }
-    }, 0);
+  function clearCurrentTab() {
+    if (activeTab === "dedupe") {
+      setDedupeInput("");
+      toast("Поле удаления дублей очищено");
+      return;
+    }
+    if (activeTab === "format") {
+      setFormatInput("");
+      toast("Поле форматирования очищено");
+      return;
+    }
+    if (activeTab === "chunk") {
+      setChunkInput("");
+      setChunkSizeInput(String(DEFAULT_CHUNK_SIZE));
+      toast("Данные для разбиения очищены");
+      return;
+    }
+    setCompareInputA("");
+    setCompareInputB("");
+    toast("Оба списка очищены");
   }
 
-  function handleDedupe() {
-    runProcessing(() => {
-      const result = deduplicateIds(dedupeInput);
-      setDedupeState({
-        output: formatOutput(result.uniqueItems, dedupeSeparator),
-        total: result.total,
-        uniqueCount: result.uniqueItems.length,
-        duplicatesRemoved: result.duplicatesRemoved,
-      });
-    });
-  }
-
-  function handleFormat() {
-    runProcessing(() => {
-      const { items } = parseIds(formatInput);
-      setFormatState({
-        output: formatOutput(items, formatSeparator),
-        count: items.length,
-      });
-    });
-  }
-
-  function handleChunk() {
-    runProcessing(() => {
-      const chunks = chunkIds(chunkInput, chunkSize).map((chunk, index) => ({
-        id: chunk.id,
-        label: `Список ${index + 1}`,
-        output: formatOutput(chunk.items, chunkSeparator),
-        count: chunk.items.length,
-      }));
-
-      setChunkState({
-        totalLists: chunks.length,
-        chunkSize,
-        chunks,
-      });
-    });
-  }
-
-  function handleCompare() {
-    runProcessing(() => {
-      const result = compareLists(compareInputA, compareInputB);
-      setCompareState({
-        countA: result.countA,
-        countB: result.countB,
-        intersectionOutput: formatOutput(result.intersection, compareSeparator),
-        intersectionCount: result.intersection.length,
-        onlyInAOutput: formatOutput(result.onlyInA, compareSeparator),
-        onlyInACount: result.onlyInA.length,
-        onlyInBOutput: formatOutput(result.onlyInB, compareSeparator),
-        onlyInBCount: result.onlyInB.length,
-      });
-    });
-  }
+  const activeTabConfig = tabs.find((tab) => tab.key === activeTab) ?? tabs[0];
+  const ActiveIcon = activeTabConfig.icon;
 
   return (
     <div className="relative min-h-screen overflow-hidden">
-      <div className="absolute inset-0 -z-10 bg-grid bg-[size:36px_36px] opacity-50" />
-      <div className="mx-auto flex min-h-screen max-w-[1600px] flex-col gap-6 px-6 py-6 lg:px-10 lg:py-8">
-        <section className="space-y-6">
-          <div className="flex flex-wrap items-center justify-between gap-3">
-            <div className="flex flex-wrap items-center gap-3">
+      <div className="pointer-events-none absolute inset-0 bg-grid bg-[size:28px_28px] opacity-[0.28]" />
+      <div className="pointer-events-none absolute inset-x-0 top-0 h-[420px] bg-[radial-gradient(circle_at_top,rgba(99,102,241,0.20),transparent_42%)] dark:bg-[radial-gradient(circle_at_top,rgba(99,102,241,0.22),transparent_42%)]" />
+
+      <main className="relative mx-auto flex min-h-screen w-full max-w-7xl flex-col gap-6 px-4 py-6 sm:px-6 lg:px-8 lg:py-8">
+        <section className="grid gap-6 lg:grid-cols-[1.4fr_0.8fr]">
+          <Card className="overflow-hidden border-white/50 bg-card/80">
+            <CardContent className="p-0">
+              <div className="grid gap-0 lg:grid-cols-[1.15fr_0.85fr]">
+                <div className="relative overflow-hidden p-6 sm:p-8">
+                  <div className={cn("absolute inset-0 bg-gradient-to-br", activeTabConfig.accent)} />
+                  <div className="relative space-y-6">
+                    <div className="flex flex-wrap items-center gap-3">
+                      <Badge className="gap-2 px-3 py-1.5 text-[11px] uppercase tracking-[0.24em]">
+                        <Sparkles className="h-3.5 w-3.5" />
+                        Pure List
+                      </Badge>
+                      <Badge className="px-3 py-1.5 text-xs" variant="outline">
+                        Bento Grid UI
+                      </Badge>
+                    </div>
+
+                    <div className="space-y-4">
+                      <div className="inline-flex h-12 w-12 items-center justify-center rounded-2xl border border-white/40 bg-white/70 text-primary shadow-sm backdrop-blur dark:border-white/10 dark:bg-white/5">
+                        <ActiveIcon className="h-6 w-6" />
+                      </div>
+                      <div className="space-y-3">
+                        <h1 className="max-w-3xl text-3xl font-semibold tracking-tight sm:text-4xl lg:text-5xl">
+                          Полный редизайн Pure List без потери текущей логики.
+                        </h1>
+                        <p className="max-w-2xl text-sm leading-7 text-muted-foreground sm:text-base">
+                          Все режимы обработки списков собраны в одну аккуратную систему: удаление дублей,
+                          форматирование, разбиение на части и сравнение двух списков в реальном времени.
+                        </p>
+                      </div>
+                    </div>
+
+                    <div className="grid gap-3 sm:grid-cols-3">
+                      <MiniMetric label="Активный режим" value={activeTabConfig.label} />
+                      <MiniMetric label="Темы" value="Light / Dark" />
+                      <MiniMetric label="Обработка" value="Real-time" />
+                    </div>
+                  </div>
+                </div>
+
+                <div className="flex flex-col gap-4 border-t border-border/60 p-6 sm:p-8 lg:border-l lg:border-t-0">
+                  <div className="space-y-2">
+                    <p className="text-sm font-medium text-muted-foreground">Быстрые действия</p>
+                    <div className="grid gap-3">
+                      <Button
+                        className="justify-start gap-2"
+                        variant="secondary"
+                        onClick={() =>
+                          setTheme((current) => (current === "light" ? "dark" : "light"))
+                        }
+                      >
+                        {theme === "light" ? <Moon className="h-4 w-4" /> : <Sun className="h-4 w-4" />}
+                        Переключить тему
+                      </Button>
+                      <Button className="justify-start gap-2" variant="ghost" onClick={clearCurrentTab}>
+                        <X className="h-4 w-4" />
+                        Очистить текущую вкладку
+                      </Button>
+                      <Button
+                        className="justify-start gap-2"
+                        variant="ghost"
+                        onClick={() => toast("Настройки можно расширить в отдельной панели позже")}
+                      >
+                        <Palette className="h-4 w-4" />
+                        Настройки интерфейса
+                      </Button>
+                    </div>
+                  </div>
+
+                  <div className="rounded-[1.5rem] border border-border/70 bg-background/80 p-4 shadow-sm">
+                    <p className="text-sm font-medium">Текущий режим</p>
+                    <p className="mt-2 text-lg font-semibold">{activeTabConfig.label}</p>
+                    <p className="mt-2 text-sm leading-6 text-muted-foreground">{activeTabConfig.description}</p>
+                  </div>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card className="border-white/40 bg-card/75">
+            <CardHeader>
+              <CardTitle>Режимы</CardTitle>
+              <CardDescription>Все вкладки в одном компактном блоке навигации.</CardDescription>
+            </CardHeader>
+            <CardContent className="grid gap-3">
               {tabs.map((tab) => {
+                const Icon = tab.icon;
                 const isActive = tab.key === activeTab;
                 return (
                   <button
                     key={tab.key}
                     className={cn(
-                      "rounded-[10px] border px-8 py-2.5 text-left transition duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background",
+                      "group flex w-full items-start justify-between rounded-[1.35rem] border px-4 py-4 text-left transition-all duration-200",
                       isActive
-                        ? "border-[#A9BF78] bg-[#D6E3B1] text-[#2E391D] shadow-panel"
-                        : "border-border bg-background/95 text-foreground hover:border-[#E2B96D] hover:bg-[#F4D29C] hover:text-[#52371A]",
+                        ? "border-primary/40 bg-primary/10 shadow-sm"
+                        : "border-border/70 bg-background/70 hover:-translate-y-0.5 hover:border-primary/25 hover:bg-background",
                     )}
                     onClick={() => setActiveTab(tab.key)}
                     type="button"
                   >
-                    <p className={cn("text-[14px] font-semibold leading-tight", isActive ? "text-[#2E391D]" : "text-foreground")}>
-                      {tab.label}
-                    </p>
+                    <div className="flex items-start gap-3">
+                      <div
+                        className={cn(
+                          "mt-0.5 flex h-10 w-10 items-center justify-center rounded-2xl border",
+                          isActive ? "border-primary/30 bg-primary/15 text-primary" : "border-border/70 bg-card text-muted-foreground",
+                        )}
+                      >
+                        <Icon className="h-4 w-4" />
+                      </div>
+                      <div className="space-y-1">
+                        <div className="font-medium">{tab.label}</div>
+                        <div className="text-sm leading-6 text-muted-foreground">{tab.description}</div>
+                      </div>
+                    </div>
+                    <ChevronRight className={cn("mt-1 h-4 w-4 transition-transform", isActive ? "text-primary" : "text-muted-foreground group-hover:translate-x-0.5")} />
                   </button>
                 );
               })}
-            </div>
-            <Button
-              variant="outline"
-              onClick={() => setTheme((current) => (current === "light" ? "dark" : "light"))}
-            >
-              {theme === "light" ? "Тёмная тема" : "Светлая тема"}
-            </Button>
-          </div>
-
-          <Card className="inline-flex w-fit max-w-full border-[#E2B96D] bg-[#F4D29C] text-[#52371A]">
-            <CardContent className="px-5 py-3.5">
-              <p className="text-sm leading-7 text-[#52371A]/88">
-                {tabs.find((tab) => tab.key === activeTab)?.description}
-              </p>
             </CardContent>
           </Card>
+        </section>
 
-          {activeTab === "dedupe" ? (
-            <div className="grid gap-6 xl:grid-cols-[1fr_0.95fr]">
-              <Card>
-                <CardHeader className="pb-4">
-                  <CardTitle>Удаление дублей</CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-5 pt-0">
+        <section className="grid gap-6">
+          {activeTab === "dedupe" && (
+            <>
+              <div className="grid gap-6 xl:grid-cols-[1.1fr_0.9fr]">
+                <WorkbenchCard
+                  title="Исходный список"
+                  description="Вставь строки или ID. Поддерживаются переносы, запятые и точки с запятой."
+                  actions={
+                    <div className="flex flex-wrap gap-2">
+                      <Button className="gap-2" variant="ghost" onClick={() => setDedupeInput("")}>
+                        <X className="h-4 w-4" />
+                        Очистить
+                      </Button>
+                    </div>
+                  }
+                >
                   <Textarea
-                    className="min-h-[154px]"
+                    className="min-h-[360px]"
                     onChange={(event) => setDedupeInput(event.target.value)}
-                    placeholder="Вставьте список ID в любом популярном формате"
+                    placeholder={"Например:\n12345\n12345\n99887"}
                     value={dedupeInput}
                   />
-                  <SeparatorCombobox
-                    id="dedupe-separator"
-                    label="Разделитель результата"
-                    onChange={setDedupeSeparator}
-                    value={dedupeSeparator}
-                  />
-                  <div className="flex flex-wrap gap-3">
-                    <Button onClick={handleDedupe}>
-                      {isProcessing ? "Обработка..." : "Очистить список"}
-                    </Button>
-                    <Button
-                      onClick={() => {
-                        setDedupeInput("");
-                        setDedupeSeparator("\n");
-                        setDedupeState({
-                          output: "",
-                          total: 0,
-                          uniqueCount: 0,
-                          duplicatesRemoved: 0,
-                        });
-                      }}
-                      variant="outline"
-                    >
-                      Очистить всё
-                    </Button>
-                  </div>
-                </CardContent>
-              </Card>
+                </WorkbenchCard>
 
-              <div className="space-y-6">
-                <ResultPanel
-                  countLabel={`Уникальных ID: ${dedupeState.uniqueCount}`}
-                  description=""
-                  minHeightClassName="min-h-[168px]"
-                  onCopy={() => copyToClipboard(dedupeState.output)}
-                  secondaryCountLabel={`Удалено дублей: ${dedupeState.duplicatesRemoved}`}
-                  title="Результат"
-                  value={dedupeState.output}
-                />
-                <div className="flex flex-wrap gap-3">
-                  <StatTile className="min-w-[140px] flex-1" label="Всего строк" value={String(dedupeState.total)} />
-                  <StatTile className="min-w-[140px] flex-1" label="Уникальных ID" value={String(dedupeState.uniqueCount)} />
-                  <StatTile className="min-w-[140px] flex-1" label="Удалено дублей" value={String(dedupeState.duplicatesRemoved)} />
-                </div>
+                <WorkbenchCard
+                  title="Результат без дублей"
+                  description="Список обновляется автоматически при любом изменении."
+                  actions={
+                    <div className="flex flex-wrap gap-2">
+                      <Button
+                        className="gap-2"
+                        disabled={!dedupeStats.output}
+                        onClick={() => copyToClipboard(dedupeStats.output, "Результат без дублей скопирован")}
+                      >
+                        <ClipboardCopy className="h-4 w-4" />
+                        Скопировать
+                      </Button>
+                    </div>
+                  }
+                  footer={
+                    <SeparatorCombobox
+                      id="dedupe-separator"
+                      label="Разделитель результата"
+                      onChange={setDedupeSeparator}
+                      value={dedupeSeparator}
+                    />
+                  }
+                >
+                  <Textarea className="min-h-[360px]" readOnly value={dedupeStats.output} />
+                </WorkbenchCard>
               </div>
-            </div>
-          ) : null}
+              <StatsBar
+                items={[
+                  { label: "Всего строк", value: dedupeStats.total },
+                  { label: "Уникальных", value: dedupeStats.uniqueCount },
+                  { label: "Удалено дубликатов", value: dedupeStats.duplicatesRemoved },
+                ]}
+              />
+            </>
+          )}
 
-          {activeTab === "format" ? (
-            <div className="grid gap-6 xl:grid-cols-[1fr_0.95fr]">
-              <Card>
-                <CardHeader className="pb-4">
-                  <CardTitle>Трансформация / Форматирование</CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-5 pt-0">
+          {activeTab === "format" && (
+            <>
+              <div className="grid gap-6 xl:grid-cols-[1.05fr_0.95fr]">
+                <WorkbenchCard
+                  title="Список для форматирования"
+                  description="Вставь любой набор строк или ID, а затем выбери формат результата."
+                  actions={
+                    <Button className="gap-2" variant="ghost" onClick={() => setFormatInput("")}>
+                      <X className="h-4 w-4" />
+                      Очистить
+                    </Button>
+                  }
+                  footer={
+                    <SeparatorCombobox
+                      id="format-separator"
+                      label="Разделитель результата"
+                      onChange={setFormatSeparator}
+                      value={formatSeparator}
+                    />
+                  }
+                >
                   <Textarea
-                    className="min-h-[154px]"
+                    className="min-h-[340px]"
                     onChange={(event) => setFormatInput(event.target.value)}
-                    placeholder="Вставьте список ID"
+                    placeholder="Например: id_1, id_2, id_3"
                     value={formatInput}
                   />
-                  <SeparatorCombobox
-                    id="format-separator"
-                    label="Разделитель результата"
-                    onChange={setFormatSeparator}
-                    value={formatSeparator}
-                  />
-                  <div className="flex flex-wrap gap-3">
-                    <Button onClick={handleFormat}>
-                      {isProcessing ? "Обработка..." : "Преобразовать"}
-                    </Button>
+                </WorkbenchCard>
+
+                <WorkbenchCard
+                  title="Отформатированный вывод"
+                  description="Результат сразу готов к вставке в SQL, таблицу или другой инструмент."
+                  actions={
                     <Button
-                      onClick={() => {
-                        setFormatInput("");
-                        setFormatSeparator("\n");
-                        setFormatState({
-                          output: "",
-                          count: 0,
-                        });
-                      }}
-                      variant="outline"
+                      className="gap-2"
+                      disabled={!formatStats.output}
+                      onClick={() => copyToClipboard(formatStats.output, "Отформатированный список скопирован")}
                     >
-                      Очистить всё
+                      <ClipboardCopy className="h-4 w-4" />
+                      Скопировать
                     </Button>
-                  </div>
-                </CardContent>
-              </Card>
-
-              <div className="space-y-6">
-                <ResultPanel
-                  countLabel={`Количество ID: ${formatState.count}`}
-                  description=""
-                  minHeightClassName="min-h-[168px]"
-                  onCopy={() => copyToClipboard(formatState.output)}
-                  title="Преобразованный результат"
-                  value={formatState.output}
-                />
+                  }
+                >
+                  <Textarea className="min-h-[340px]" readOnly value={formatStats.output} />
+                </WorkbenchCard>
               </div>
-            </div>
-          ) : null}
+              <StatsBar compact items={[{ label: "Элементов", value: formatStats.count }]} />
+            </>
+          )}
 
-          {activeTab === "chunk" ? (
-            <div className="space-y-6">
-              <Card>
-                <CardHeader className="pb-4">
-                  <CardTitle>Разделение</CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-5 pt-0">
+          {activeTab === "chunk" && (
+            <>
+              <div className="grid gap-6 xl:grid-cols-[0.95fr_1.05fr]">
+                <WorkbenchCard
+                  title="Большой список"
+                  description="Вставь список, который нужно разбить на несколько частей."
+                  actions={
+                    <Button className="gap-2" variant="ghost" onClick={() => setChunkInput("")}>
+                      <X className="h-4 w-4" />
+                      Очистить
+                    </Button>
+                  }
+                  footer={
+                    <div className="grid gap-4 sm:grid-cols-[180px_minmax(0,1fr)]">
+                      <div className="space-y-2">
+                        <label className="text-sm font-medium" htmlFor="chunk-size">
+                          Размер части
+                        </label>
+                        <Input
+                          id="chunk-size"
+                          inputMode="numeric"
+                          onChange={(event) => setChunkSizeInput(event.target.value)}
+                          value={chunkSizeInput}
+                        />
+                      </div>
+                      <SeparatorCombobox
+                        id="chunk-separator"
+                        label="Разделитель внутри части"
+                        onChange={setChunkSeparator}
+                        value={chunkSeparator}
+                      />
+                    </div>
+                  }
+                >
                   <Textarea
-                    className="min-h-[154px]"
+                    className="min-h-[340px]"
                     onChange={(event) => setChunkInput(event.target.value)}
-                    placeholder="Вставьте большой список ID"
+                    placeholder="Вставь длинный список значений"
                     value={chunkInput}
                   />
-                  <div className="grid gap-4 lg:grid-cols-[220px_1fr]">
-                    <div className="space-y-2">
-                      <label className="text-sm font-medium" htmlFor="chunk-size">
-                        Сколько ID в одном списке?
-                      </label>
-                      <Input
-                        id="chunk-size"
-                        inputMode="numeric"
-                        min={1}
-                        onChange={(event) => setChunkSizeInput(event.target.value)}
-                        value={chunkSizeInput}
+                </WorkbenchCard>
+
+                <Card className="h-full border-white/40 bg-card/80">
+                  <CardHeader>
+                    <CardTitle>Сгенерированные части</CardTitle>
+                    <CardDescription>Каждый блок можно копировать отдельно.</CardDescription>
+                  </CardHeader>
+                  <CardContent className="space-y-4">
+                    {chunkStats.chunks.length ? (
+                      <div className="grid max-h-[620px] gap-4 overflow-auto pr-1">
+                        {chunkStats.chunks.map((chunk) => (
+                          <div key={chunk.id} className="rounded-[1.4rem] border border-border/70 bg-background/80 p-4 shadow-sm">
+                            <div className="mb-3 flex items-center justify-between gap-3">
+                              <div>
+                                <p className="font-medium">{chunk.label}</p>
+                                <p className="text-sm text-muted-foreground">{chunk.count} элементов</p>
+                              </div>
+                              <Button
+                                className="gap-2"
+                                onClick={() => copyToClipboard(chunk.output, `${chunk.label} скопирована`)}
+                                size="sm"
+                              >
+                                <ClipboardCopy className="h-4 w-4" />
+                                Скопировать
+                              </Button>
+                            </div>
+                            <Textarea className="min-h-[130px]" readOnly value={chunk.output} />
+                          </div>
+                        ))}
+                      </div>
+                    ) : (
+                      <EmptyState
+                        description="Добавь данные слева, и здесь автоматически появятся готовые блоки списка."
+                        icon={ScissorsLineDashed}
+                        title="Пока нет частей"
                       />
-                    </div>
+                    )}
+                  </CardContent>
+                </Card>
+              </div>
+              <StatsBar
+                items={[
+                  { label: "Всего элементов", value: chunkStats.totalItems },
+                  { label: "Размер части", value: chunkStats.chunkSize },
+                  { label: "Списков создано", value: chunkStats.totalLists },
+                ]}
+              />
+            </>
+          )}
+
+          {activeTab === "compare" && (
+            <>
+              <div className="grid gap-6 2xl:grid-cols-2">
+                <WorkbenchCard
+                  title="Список A"
+                  description="Первый набор данных для сравнения."
+                  actions={
+                    <Button className="gap-2" variant="ghost" onClick={() => setCompareInputA("")}>
+                      <X className="h-4 w-4" />
+                      Очистить
+                    </Button>
+                  }
+                >
+                  <Textarea
+                    className="min-h-[300px]"
+                    onChange={(event) => setCompareInputA(event.target.value)}
+                    placeholder="Первый список"
+                    value={compareInputA}
+                  />
+                </WorkbenchCard>
+
+                <WorkbenchCard
+                  title="Список B"
+                  description="Второй набор данных для сравнения."
+                  actions={
+                    <Button className="gap-2" variant="ghost" onClick={() => setCompareInputB("")}>
+                      <X className="h-4 w-4" />
+                      Очистить
+                    </Button>
+                  }
+                  footer={
                     <SeparatorCombobox
-                      id="chunk-separator"
-                      label="Разделитель внутри каждого куска"
-                      onChange={setChunkSeparator}
-                      value={chunkSeparator}
+                      id="compare-separator"
+                      label="Разделитель результата"
+                      onChange={setCompareSeparator}
+                      value={compareSeparator}
                     />
-                  </div>
-                  <div className="flex flex-wrap gap-3">
-                    <Button onClick={handleChunk}>
-                      {isProcessing ? "Обработка..." : "Разделить"}
-                    </Button>
-                    <Button
-                      onClick={() => {
-                        setChunkInput("");
-                        setChunkSeparator("\n");
-                        setChunkSizeInput(String(DEFAULT_CHUNK_SIZE));
-                        setChunkState({
-                          totalLists: 0,
-                          chunkSize: DEFAULT_CHUNK_SIZE,
-                          chunks: [],
-                        });
-                      }}
-                      variant="outline"
-                    >
-                      Очистить всё
-                    </Button>
-                  </div>
-                </CardContent>
-              </Card>
-
-              <div className="rounded-[10px] border border-border/70 bg-card/80 px-5 py-4">
-                <p className="text-sm font-medium">Итого списков: {chunkState.totalLists}</p>
-                <p className="mt-1 text-sm text-muted-foreground">
-                  Размер одного блока: {chunkState.chunkSize}. При некорректном вводе используется значение по умолчанию {DEFAULT_CHUNK_SIZE}.
-                </p>
+                  }
+                >
+                  <Textarea
+                    className="min-h-[300px]"
+                    onChange={(event) => setCompareInputB(event.target.value)}
+                    placeholder="Второй список"
+                    value={compareInputB}
+                  />
+                </WorkbenchCard>
               </div>
 
-              <div className="grid gap-5 xl:grid-cols-2 2xl:grid-cols-3">
-                {chunkState.chunks.map((chunk) => (
-                  <ResultPanel
-                    key={chunk.id}
-                    actionLabel="Скопировать"
-                    countLabel={`ID: ${chunk.count}/${chunkState.chunkSize}`}
-                    description="Готовый фрагмент списка."
-                    minHeightClassName="min-h-[220px]"
-                    onCopy={() => copyToClipboard(chunk.output)}
-                    title={chunk.label}
-                    value={chunk.output}
-                  />
-                ))}
-              </div>
-            </div>
-          ) : null}
-
-          {activeTab === "compare" ? (
-            <div className="space-y-6">
-              <Card>
-                <CardHeader className="pb-4">
-                  <CardTitle>Сравнение списков</CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-5 pt-0">
-                  <div className="grid gap-4 xl:grid-cols-2">
-                    <div className="space-y-2">
-                      <label className="text-sm font-medium" htmlFor="compare-list-a">
-                        Список А
-                      </label>
-                      <Textarea
-                        className="min-h-[154px]"
-                        id="compare-list-a"
-                        onChange={(event) => setCompareInputA(event.target.value)}
-                        placeholder="Вставьте список А"
-                        value={compareInputA}
-                      />
-                    </div>
-                    <div className="space-y-2">
-                      <label className="text-sm font-medium" htmlFor="compare-list-b">
-                        Список Б
-                      </label>
-                      <Textarea
-                        className="min-h-[154px]"
-                        id="compare-list-b"
-                        onChange={(event) => setCompareInputB(event.target.value)}
-                        placeholder="Вставьте список Б"
-                        value={compareInputB}
-                      />
-                    </div>
-                  </div>
-                  <SeparatorCombobox
-                    id="compare-separator"
-                    label="Разделитель результата"
-                    onChange={setCompareSeparator}
-                    value={compareSeparator}
-                  />
-                  <div className="flex flex-wrap gap-3">
-                    <Button onClick={handleCompare}>
-                      {isProcessing ? "Обработка..." : "Сравнить"}
-                    </Button>
-                    <Button
-                      onClick={() => {
-                        setCompareInputA("");
-                        setCompareInputB("");
-                        setCompareSeparator("\n");
-                        setCompareState({
-                          countA: 0,
-                          countB: 0,
-                          intersectionOutput: "",
-                          intersectionCount: 0,
-                          onlyInAOutput: "",
-                          onlyInACount: 0,
-                          onlyInBOutput: "",
-                          onlyInBCount: 0,
-                        });
-                      }}
-                      variant="outline"
-                    >
-                      Очистить всё
-                    </Button>
-                  </div>
-                </CardContent>
-              </Card>
+              <StatsBar
+                items={[
+                  { label: "Уникальных в A", value: compareStats.countA },
+                  { label: "Уникальных в B", value: compareStats.countB },
+                  { label: "Общее пересечение", value: compareStats.intersectionCount },
+                ]}
+              />
 
               <div className="grid gap-6 xl:grid-cols-3">
-                <ResultPanel
-                  countLabel={`Совпадений: ${compareState.intersectionCount}`}
-                  description=""
-                  onCopy={() => copyToClipboard(compareState.intersectionOutput)}
-                  title="Совпадения"
-                  value={compareState.intersectionOutput}
-                />
-                <ResultPanel
-                  countLabel={`Уникальные ID: ${compareState.onlyInACount}`}
-                  description=""
-                  metricsBelowTitle
-                  onCopy={() => copyToClipboard(compareState.onlyInAOutput)}
-                  secondaryCountLabel={`Всего значений: ${compareState.countA}`}
-                  title="Уникальные в списке А"
-                  value={compareState.onlyInAOutput}
-                />
-                <ResultPanel
-                  countLabel={`Уникальные ID: ${compareState.onlyInBCount}`}
-                  description=""
-                  metricsBelowTitle
-                  onCopy={() => copyToClipboard(compareState.onlyInBOutput)}
-                  secondaryCountLabel={`Всего значений: ${compareState.countB}`}
-                  title="Уникальные в списке Б"
-                  value={compareState.onlyInBOutput}
-                />
+                <WorkbenchCard
+                  title="Пересечение"
+                  description="Элементы, которые есть в обоих списках."
+                  actions={
+                    <Button
+                      className="gap-2"
+                      disabled={!compareStats.intersectionOutput}
+                      onClick={() => copyToClipboard(compareStats.intersectionOutput, "Пересечение скопировано")}
+                    >
+                      <ClipboardCopy className="h-4 w-4" />
+                      Скопировать
+                    </Button>
+                  }
+                >
+                  <Textarea className="min-h-[220px]" readOnly value={compareStats.intersectionOutput} />
+                </WorkbenchCard>
+
+                <WorkbenchCard
+                  title="Только в A"
+                  description="Элементы, которых нет во втором списке."
+                  actions={
+                    <Button
+                      className="gap-2"
+                      disabled={!compareStats.onlyInAOutput}
+                      onClick={() => copyToClipboard(compareStats.onlyInAOutput, "Уникальные элементы A скопированы")}
+                    >
+                      <ClipboardCopy className="h-4 w-4" />
+                      Скопировать
+                    </Button>
+                  }
+                >
+                  <Textarea className="min-h-[220px]" readOnly value={compareStats.onlyInAOutput} />
+                </WorkbenchCard>
+
+                <WorkbenchCard
+                  title="Только в B"
+                  description="Элементы, которых нет в первом списке."
+                  actions={
+                    <Button
+                      className="gap-2"
+                      disabled={!compareStats.onlyInBOutput}
+                      onClick={() => copyToClipboard(compareStats.onlyInBOutput, "Уникальные элементы B скопированы")}
+                    >
+                      <ClipboardCopy className="h-4 w-4" />
+                      Скопировать
+                    </Button>
+                  }
+                >
+                  <Textarea className="min-h-[220px]" readOnly value={compareStats.onlyInBOutput} />
+                </WorkbenchCard>
               </div>
-            </div>
-          ) : null}
+            </>
+          )}
         </section>
-      </div>
+      </main>
     </div>
   );
 }
 
-function StatTile({
-  label,
-  value,
-  className,
+function MiniMetric({ label, value }: { label: string; value: string }) {
+  return (
+    <div className="rounded-[1.25rem] border border-border/70 bg-background/70 px-4 py-3 backdrop-blur">
+      <p className="text-xs uppercase tracking-[0.18em] text-muted-foreground">{label}</p>
+      <p className="mt-2 text-sm font-semibold sm:text-base">{value}</p>
+    </div>
+  );
+}
+
+function WorkbenchCard({
+  title,
+  description,
+  actions,
+  footer,
+  children,
 }: {
-  label: string;
-  value: string;
-  className?: string;
+  title: string;
+  description: string;
+  actions?: ReactNode;
+  footer?: ReactNode;
+  children: ReactNode;
 }) {
   return (
-    <div className={cn("rounded-[10px] border border-border/70 bg-background/70 p-4", className)}>
-      <p className="text-xs uppercase tracking-[0.24em] text-muted-foreground">{label}</p>
-      <p className="mt-2 font-mono text-[14px] font-semibold">{value}</p>
+    <Card className="h-full border-white/40 bg-card/80">
+      <CardHeader className="space-y-4">
+        <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+          <div className="space-y-1.5">
+            <CardTitle>{title}</CardTitle>
+            <CardDescription>{description}</CardDescription>
+          </div>
+          {actions}
+        </div>
+      </CardHeader>
+      <CardContent className="space-y-5">
+        {children}
+        {footer}
+      </CardContent>
+    </Card>
+  );
+}
+
+function StatsBar({
+  items,
+  compact = false,
+}: {
+  items: Array<{ label: string; value: number | string }>;
+  compact?: boolean;
+}) {
+  return (
+    <div
+      className={cn(
+        "grid gap-4",
+        compact ? "sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-4" : "md:grid-cols-3",
+      )}
+    >
+      {items.map((item) => (
+        <Card key={item.label} className="border-white/40 bg-card/75 transition-transform duration-200 hover:-translate-y-0.5">
+          <CardContent className="flex items-center justify-between gap-4 p-5">
+            <div>
+              <p className="text-sm text-muted-foreground">{item.label}</p>
+              <p className="mt-2 text-2xl font-semibold tracking-tight">{item.value}</p>
+            </div>
+            <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-primary/10 text-primary">
+              <CheckCheck className="h-5 w-5" />
+            </div>
+          </CardContent>
+        </Card>
+      ))}
+    </div>
+  );
+}
+
+function EmptyState({
+  icon: Icon,
+  title,
+  description,
+}: {
+  icon: typeof ScissorsLineDashed;
+  title: string;
+  description: string;
+}) {
+  return (
+    <div className="flex min-h-[320px] flex-col items-center justify-center rounded-[1.5rem] border border-dashed border-border/70 bg-background/60 px-6 text-center">
+      <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-primary/10 text-primary">
+        <Icon className="h-6 w-6" />
+      </div>
+      <h3 className="mt-4 text-lg font-semibold">{title}</h3>
+      <p className="mt-2 max-w-md text-sm leading-6 text-muted-foreground">{description}</p>
     </div>
   );
 }
