@@ -7,15 +7,12 @@ import {
   Columns2,
   GitCompareArrows,
   Moon,
-  Palette,
   ScissorsLineDashed,
-  Sparkles,
   Sun,
   WandSparkles,
   X,
 } from "lucide-react";
 import { SeparatorCombobox } from "./components/separator-combobox";
-import { Badge } from "./components/ui/badge";
 import { Button } from "./components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "./components/ui/card";
 import { Input } from "./components/ui/input";
@@ -203,139 +200,74 @@ function AppShell() {
   }
 
   const activeTabConfig = tabs.find((tab) => tab.key === activeTab) ?? tabs[0];
-  const ActiveIcon = activeTabConfig.icon;
 
   return (
     <div className="relative min-h-screen overflow-hidden">
       <div className="pointer-events-none absolute inset-0 bg-grid bg-[size:28px_28px] opacity-[0.28]" />
       <div className="pointer-events-none absolute inset-x-0 top-0 h-[420px] bg-[radial-gradient(circle_at_top,rgba(99,102,241,0.20),transparent_42%)] dark:bg-[radial-gradient(circle_at_top,rgba(99,102,241,0.22),transparent_42%)]" />
 
-      <main className="relative mx-auto flex min-h-screen w-full max-w-7xl flex-col gap-6 px-4 py-6 sm:px-6 lg:px-8 lg:py-8">
-        <section className="grid gap-6 lg:grid-cols-[1.4fr_0.8fr]">
-          <Card className="overflow-hidden border-white/50 bg-card/80">
-            <CardContent className="p-0">
-              <div className="grid gap-0 lg:grid-cols-[1.15fr_0.85fr]">
-                <div className="relative overflow-hidden p-6 sm:p-8">
-                  <div className={cn("absolute inset-0 bg-gradient-to-br", activeTabConfig.accent)} />
-                  <div className="relative space-y-6">
-                    <div className="flex flex-wrap items-center gap-3">
-                      <Badge className="gap-2 px-3 py-1.5 text-[11px] uppercase tracking-[0.24em]">
-                        <Sparkles className="h-3.5 w-3.5" />
-                        Pure List
-                      </Badge>
-                      <Badge className="px-3 py-1.5 text-xs" variant="outline">
-                        Bento Grid UI
-                      </Badge>
-                    </div>
+      <main className="relative mx-auto flex min-h-screen w-full max-w-7xl flex-col gap-5 px-4 py-4 sm:px-6 lg:px-8 lg:py-5">
+        <section className="space-y-4">
+          <div className="flex items-start justify-between gap-4">
+            <div className="space-y-2">
+              <p className="max-w-2xl text-sm leading-6 text-muted-foreground">
+                {activeTabConfig.description}
+              </p>
+            </div>
 
-                    <div className="space-y-4">
-                      <div className="inline-flex h-12 w-12 items-center justify-center rounded-2xl border border-white/40 bg-white/70 text-primary shadow-sm backdrop-blur dark:border-white/10 dark:bg-white/5">
-                        <ActiveIcon className="h-6 w-6" />
-                      </div>
-                      <div className="space-y-3">
-                        <h1 className="max-w-3xl text-3xl font-semibold tracking-tight sm:text-4xl lg:text-5xl">
-                          Полный редизайн Pure List без потери текущей логики.
-                        </h1>
-                        <p className="max-w-2xl text-sm leading-7 text-muted-foreground sm:text-base">
-                          Все режимы обработки списков собраны в одну аккуратную систему: удаление дублей,
-                          форматирование, разбиение на части и сравнение двух списков в реальном времени.
-                        </p>
-                      </div>
-                    </div>
+            <Button
+              className="h-10 w-10 shrink-0 rounded-2xl px-0"
+              onClick={() => setTheme((current) => (current === "light" ? "dark" : "light"))}
+              size="sm"
+              variant="secondary"
+            >
+              {theme === "light" ? <Moon className="h-4 w-4" /> : <Sun className="h-4 w-4" />}
+            </Button>
+          </div>
 
-                    <div className="grid gap-3 sm:grid-cols-3">
-                      <MiniMetric label="Активный режим" value={activeTabConfig.label} />
-                      <MiniMetric label="Темы" value="Light / Dark" />
-                      <MiniMetric label="Обработка" value="Real-time" />
-                    </div>
-                  </div>
-                </div>
+          <div className="flex flex-wrap items-center gap-3">
+            {tabs.map((tab) => {
+              const Icon = tab.icon;
+              const isActive = tab.key === activeTab;
 
-                <div className="flex flex-col gap-4 border-t border-border/60 p-6 sm:p-8 lg:border-l lg:border-t-0">
-                  <div className="space-y-2">
-                    <p className="text-sm font-medium text-muted-foreground">Быстрые действия</p>
-                    <div className="grid gap-3">
-                      <Button
-                        className="justify-start gap-2"
-                        variant="secondary"
-                        onClick={() =>
-                          setTheme((current) => (current === "light" ? "dark" : "light"))
-                        }
-                      >
-                        {theme === "light" ? <Moon className="h-4 w-4" /> : <Sun className="h-4 w-4" />}
-                        Переключить тему
-                      </Button>
-                      <Button className="justify-start gap-2" variant="ghost" onClick={clearCurrentTab}>
-                        <X className="h-4 w-4" />
-                        Очистить текущую вкладку
-                      </Button>
-                      <Button
-                        className="justify-start gap-2"
-                        variant="ghost"
-                        onClick={() => toast("Настройки можно расширить в отдельной панели позже")}
-                      >
-                        <Palette className="h-4 w-4" />
-                        Настройки интерфейса
-                      </Button>
-                    </div>
-                  </div>
-
-                  <div className="rounded-[1.5rem] border border-border/70 bg-background/80 p-4 shadow-sm">
-                    <p className="text-sm font-medium">Текущий режим</p>
-                    <p className="mt-2 text-lg font-semibold">{activeTabConfig.label}</p>
-                    <p className="mt-2 text-sm leading-6 text-muted-foreground">{activeTabConfig.description}</p>
-                  </div>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-
-          <Card className="border-white/40 bg-card/75">
-            <CardHeader>
-              <CardTitle>Режимы</CardTitle>
-              <CardDescription>Все вкладки в одном компактном блоке навигации.</CardDescription>
-            </CardHeader>
-            <CardContent className="grid gap-3">
-              {tabs.map((tab) => {
-                const Icon = tab.icon;
-                const isActive = tab.key === activeTab;
-                return (
-                  <button
-                    key={tab.key}
+              return (
+                <button
+                  key={tab.key}
+                  className={cn(
+                    "group inline-flex items-center gap-2 rounded-[1.05rem] border px-3.5 py-2.5 text-sm font-medium transition-all duration-200",
+                    isActive
+                      ? "border-primary/40 bg-primary/10 text-primary shadow-sm"
+                      : "border-border/70 bg-background/70 text-foreground hover:-translate-y-0.5 hover:border-primary/25 hover:bg-background",
+                  )}
+                  onClick={() => setActiveTab(tab.key)}
+                  type="button"
+                >
+                  <span
                     className={cn(
-                      "group flex w-full items-start justify-between rounded-[1.35rem] border px-4 py-4 text-left transition-all duration-200",
-                      isActive
-                        ? "border-primary/40 bg-primary/10 shadow-sm"
-                        : "border-border/70 bg-background/70 hover:-translate-y-0.5 hover:border-primary/25 hover:bg-background",
+                      "flex h-8 w-8 items-center justify-center rounded-xl border",
+                      isActive ? "border-primary/30 bg-primary/15" : "border-border/70 bg-card text-muted-foreground",
                     )}
-                    onClick={() => setActiveTab(tab.key)}
-                    type="button"
                   >
-                    <div className="flex items-start gap-3">
-                      <div
-                        className={cn(
-                          "mt-0.5 flex h-10 w-10 items-center justify-center rounded-2xl border",
-                          isActive ? "border-primary/30 bg-primary/15 text-primary" : "border-border/70 bg-card text-muted-foreground",
-                        )}
-                      >
-                        <Icon className="h-4 w-4" />
-                      </div>
-                      <div className="space-y-1">
-                        <div className="font-medium">{tab.label}</div>
-                        <div className="text-sm leading-6 text-muted-foreground">{tab.description}</div>
-                      </div>
-                    </div>
-                    <ChevronRight className={cn("mt-1 h-4 w-4 transition-transform", isActive ? "text-primary" : "text-muted-foreground group-hover:translate-x-0.5")} />
-                  </button>
-                );
-              })}
-            </CardContent>
-          </Card>
+                    <Icon className="h-4 w-4" />
+                  </span>
+                  <span>{tab.label}</span>
+                  <ChevronRight className={cn("h-4 w-4 transition-transform", isActive ? "text-primary" : "text-muted-foreground group-hover:translate-x-0.5")} />
+                </button>
+              );
+            })}
+          </div>
         </section>
 
         <section className="grid gap-6">
           {activeTab === "dedupe" && (
             <>
+              <StatsBar
+                items={[
+                  { label: "Всего строк", value: dedupeStats.total },
+                  { label: "Уникальных", value: dedupeStats.uniqueCount },
+                  { label: "Удалено дубликатов", value: dedupeStats.duplicatesRemoved },
+                ]}
+              />
               <div className="grid gap-6 xl:grid-cols-[1.1fr_0.9fr]">
                 <WorkbenchCard
                   title="Исходный список"
@@ -350,7 +282,7 @@ function AppShell() {
                   }
                 >
                   <Textarea
-                    className="min-h-[360px]"
+                    className="min-h-[228px]"
                     onChange={(event) => setDedupeInput(event.target.value)}
                     placeholder={"Например:\n12345\n12345\n99887"}
                     value={dedupeInput}
@@ -372,30 +304,16 @@ function AppShell() {
                       </Button>
                     </div>
                   }
-                  footer={
-                    <SeparatorCombobox
-                      id="dedupe-separator"
-                      label="Разделитель результата"
-                      onChange={setDedupeSeparator}
-                      value={dedupeSeparator}
-                    />
-                  }
                 >
-                  <Textarea className="min-h-[360px]" readOnly value={dedupeStats.output} />
+                  <Textarea className="min-h-[228px]" readOnly value={dedupeStats.output} />
                 </WorkbenchCard>
               </div>
-              <StatsBar
-                items={[
-                  { label: "Всего строк", value: dedupeStats.total },
-                  { label: "Уникальных", value: dedupeStats.uniqueCount },
-                  { label: "Удалено дубликатов", value: dedupeStats.duplicatesRemoved },
-                ]}
-              />
             </>
           )}
 
           {activeTab === "format" && (
             <>
+              <StatsBar compact items={[{ label: "Элементов", value: formatStats.count }]} />
               <div className="grid gap-6 xl:grid-cols-[1.05fr_0.95fr]">
                 <WorkbenchCard
                   title="Список для форматирования"
@@ -416,7 +334,7 @@ function AppShell() {
                   }
                 >
                   <Textarea
-                    className="min-h-[340px]"
+                    className="min-h-[218px]"
                     onChange={(event) => setFormatInput(event.target.value)}
                     placeholder="Например: id_1, id_2, id_3"
                     value={formatInput}
@@ -437,15 +355,21 @@ function AppShell() {
                     </Button>
                   }
                 >
-                  <Textarea className="min-h-[340px]" readOnly value={formatStats.output} />
+                  <Textarea className="min-h-[218px]" readOnly value={formatStats.output} />
                 </WorkbenchCard>
               </div>
-              <StatsBar compact items={[{ label: "Элементов", value: formatStats.count }]} />
             </>
           )}
 
           {activeTab === "chunk" && (
             <>
+              <StatsBar
+                items={[
+                  { label: "Всего элементов", value: chunkStats.totalItems },
+                  { label: "Размер части", value: chunkStats.chunkSize },
+                  { label: "Списков создано", value: chunkStats.totalLists },
+                ]}
+              />
               <div className="grid gap-6 xl:grid-cols-[0.95fr_1.05fr]">
                 <WorkbenchCard
                   title="Большой список"
@@ -479,64 +403,61 @@ function AppShell() {
                   }
                 >
                   <Textarea
-                    className="min-h-[340px]"
+                    className="min-h-[218px]"
                     onChange={(event) => setChunkInput(event.target.value)}
                     placeholder="Вставь длинный список значений"
                     value={chunkInput}
                   />
                 </WorkbenchCard>
 
-                <Card className="h-full border-white/40 bg-card/80">
-                  <CardHeader>
-                    <CardTitle>Сгенерированные части</CardTitle>
-                    <CardDescription>Каждый блок можно копировать отдельно.</CardDescription>
-                  </CardHeader>
-                  <CardContent className="space-y-4">
-                    {chunkStats.chunks.length ? (
-                      <div className="grid max-h-[620px] gap-4 overflow-auto pr-1">
-                        {chunkStats.chunks.map((chunk) => (
-                          <div key={chunk.id} className="rounded-[1.4rem] border border-border/70 bg-background/80 p-4 shadow-sm">
-                            <div className="mb-3 flex items-center justify-between gap-3">
-                              <div>
-                                <p className="font-medium">{chunk.label}</p>
-                                <p className="text-sm text-muted-foreground">{chunk.count} элементов</p>
-                              </div>
-                              <Button
-                                className="gap-2"
-                                onClick={() => copyToClipboard(chunk.output, `${chunk.label} скопирована`)}
-                                size="sm"
-                              >
-                                <ClipboardCopy className="h-4 w-4" />
-                                Скопировать
-                              </Button>
+                <WorkbenchCard
+                  title="Сгенерированные части"
+                  description="Каждый блок можно копировать отдельно."
+                >
+                  {chunkStats.chunks.length ? (
+                    <div className="grid max-h-[410px] gap-4 overflow-auto pr-1">
+                      {chunkStats.chunks.map((chunk) => (
+                        <div key={chunk.id} className="rounded-[1.4rem] border border-border/70 bg-background/80 p-4 shadow-sm">
+                          <div className="mb-3 flex items-center justify-between gap-3">
+                            <div>
+                              <p className="font-medium">{chunk.label}</p>
+                              <p className="text-sm text-muted-foreground">{chunk.count} элементов</p>
                             </div>
-                            <Textarea className="min-h-[130px]" readOnly value={chunk.output} />
+                            <Button
+                              className="gap-2"
+                              onClick={() => copyToClipboard(chunk.output, `${chunk.label} скопирована`)}
+                              size="sm"
+                            >
+                              <ClipboardCopy className="h-4 w-4" />
+                              Скопировать
+                            </Button>
                           </div>
-                        ))}
-                      </div>
-                    ) : (
-                      <EmptyState
-                        description="Добавь данные слева, и здесь автоматически появятся готовые блоки списка."
-                        icon={ScissorsLineDashed}
-                        title="Пока нет частей"
-                      />
-                    )}
-                  </CardContent>
-                </Card>
+                          <Textarea className="min-h-[86px]" readOnly value={chunk.output} />
+                        </div>
+                      ))}
+                    </div>
+                  ) : (
+                    <EmptyState
+                      description="Добавь данные слева, и здесь автоматически появятся готовые блоки списка."
+                      icon={ScissorsLineDashed}
+                      title="Пока нет частей"
+                    />
+                  )}
+                </WorkbenchCard>
               </div>
-              <StatsBar
-                items={[
-                  { label: "Всего элементов", value: chunkStats.totalItems },
-                  { label: "Размер части", value: chunkStats.chunkSize },
-                  { label: "Списков создано", value: chunkStats.totalLists },
-                ]}
-              />
             </>
           )}
 
           {activeTab === "compare" && (
             <>
-              <div className="grid gap-6 2xl:grid-cols-2">
+              <StatsBar
+                items={[
+                  { label: "Уникальных в A", value: compareStats.countA },
+                  { label: "Уникальных в B", value: compareStats.countB },
+                  { label: "Общее пересечение", value: compareStats.intersectionCount },
+                ]}
+              />
+              <div className="grid gap-6 xl:grid-cols-[1.05fr_0.95fr]">
                 <WorkbenchCard
                   title="Список A"
                   description="Первый набор данных для сравнения."
@@ -548,7 +469,7 @@ function AppShell() {
                   }
                 >
                   <Textarea
-                    className="min-h-[300px]"
+                    className="min-h-[218px]"
                     onChange={(event) => setCompareInputA(event.target.value)}
                     placeholder="Первый список"
                     value={compareInputA}
@@ -564,31 +485,15 @@ function AppShell() {
                       Очистить
                     </Button>
                   }
-                  footer={
-                    <SeparatorCombobox
-                      id="compare-separator"
-                      label="Разделитель результата"
-                      onChange={setCompareSeparator}
-                      value={compareSeparator}
-                    />
-                  }
                 >
                   <Textarea
-                    className="min-h-[300px]"
+                    className="min-h-[218px]"
                     onChange={(event) => setCompareInputB(event.target.value)}
                     placeholder="Второй список"
                     value={compareInputB}
                   />
                 </WorkbenchCard>
               </div>
-
-              <StatsBar
-                items={[
-                  { label: "Уникальных в A", value: compareStats.countA },
-                  { label: "Уникальных в B", value: compareStats.countB },
-                  { label: "Общее пересечение", value: compareStats.intersectionCount },
-                ]}
-              />
 
               <div className="grid gap-6 xl:grid-cols-3">
                 <WorkbenchCard
@@ -605,7 +510,7 @@ function AppShell() {
                     </Button>
                   }
                 >
-                  <Textarea className="min-h-[220px]" readOnly value={compareStats.intersectionOutput} />
+                  <Textarea className="min-h-[160px]" readOnly value={compareStats.intersectionOutput} />
                 </WorkbenchCard>
 
                 <WorkbenchCard
@@ -622,7 +527,7 @@ function AppShell() {
                     </Button>
                   }
                 >
-                  <Textarea className="min-h-[220px]" readOnly value={compareStats.onlyInAOutput} />
+                  <Textarea className="min-h-[160px]" readOnly value={compareStats.onlyInAOutput} />
                 </WorkbenchCard>
 
                 <WorkbenchCard
@@ -639,22 +544,13 @@ function AppShell() {
                     </Button>
                   }
                 >
-                  <Textarea className="min-h-[220px]" readOnly value={compareStats.onlyInBOutput} />
+                  <Textarea className="min-h-[160px]" readOnly value={compareStats.onlyInBOutput} />
                 </WorkbenchCard>
               </div>
             </>
           )}
         </section>
       </main>
-    </div>
-  );
-}
-
-function MiniMetric({ label, value }: { label: string; value: string }) {
-  return (
-    <div className="rounded-[1.25rem] border border-border/70 bg-background/70 px-4 py-3 backdrop-blur">
-      <p className="text-xs uppercase tracking-[0.18em] text-muted-foreground">{label}</p>
-      <p className="mt-2 text-sm font-semibold sm:text-base">{value}</p>
     </div>
   );
 }
@@ -699,24 +595,20 @@ function StatsBar({
   compact?: boolean;
 }) {
   return (
-    <div
-      className={cn(
-        "grid gap-4",
-        compact ? "sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-4" : "md:grid-cols-3",
-      )}
-    >
+    <div className={cn("flex flex-wrap gap-2.5", compact && "gap-2")}>
       {items.map((item) => (
-        <Card key={item.label} className="border-white/40 bg-card/75 transition-transform duration-200 hover:-translate-y-0.5">
-          <CardContent className="flex items-center justify-between gap-4 p-5">
-            <div>
-              <p className="text-sm text-muted-foreground">{item.label}</p>
-              <p className="mt-2 text-2xl font-semibold tracking-tight">{item.value}</p>
-            </div>
-            <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-primary/10 text-primary">
-              <CheckCheck className="h-5 w-5" />
-            </div>
-          </CardContent>
-        </Card>
+        <div
+          key={item.label}
+          className="inline-flex items-center gap-2 rounded-full border border-border/70 bg-card/80 px-3 py-2 shadow-sm backdrop-blur"
+        >
+          <div className="flex h-7 w-7 items-center justify-center rounded-full bg-primary/10 text-primary">
+            <CheckCheck className="h-3.5 w-3.5" />
+          </div>
+          <div className="flex items-baseline gap-2">
+            <p className="text-[11px] uppercase tracking-[0.14em] text-muted-foreground">{item.label}</p>
+            <p className="text-sm font-semibold tracking-tight text-foreground">{item.value}</p>
+          </div>
+        </div>
       ))}
     </div>
   );
