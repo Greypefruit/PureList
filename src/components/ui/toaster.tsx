@@ -44,7 +44,7 @@ export function ToastProvider({ children }: PropsWithChildren) {
           <div
             key={item.id}
             className={cn(
-              "rounded-[10px] border border-border/70 bg-card/95 px-4 py-3 text-sm font-medium text-card-foreground shadow-panel backdrop-blur",
+              "rounded-2xl border border-border/70 bg-card/95 px-4 py-3 text-sm font-medium text-card-foreground shadow-panel backdrop-blur-xl",
             )}
           >
             {item.title}
