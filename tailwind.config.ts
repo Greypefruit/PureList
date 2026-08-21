@@ -37,17 +37,10 @@ export default {
         },
       },
       borderRadius: {
-        xl: "1.25rem",
-        lg: "var(--radius)",
-        md: "calc(var(--radius) - 2px)",
         sm: "calc(var(--radius) - 4px)",
-      },
-      boxShadow: {
-        panel: "0 20px 80px -40px rgba(15, 23, 42, 0.35)",
-      },
-      backgroundImage: {
-        grid:
-          "linear-gradient(to right, rgba(148,163,184,0.08) 1px, transparent 1px), linear-gradient(to bottom, rgba(148,163,184,0.08) 1px, transparent 1px)",
+        md: "calc(var(--radius) - 2px)",
+        lg: "var(--radius)",
+        xl: "var(--radius)",
       },
       fontFamily: {
         sans: ["Inter", "system-ui", "sans-serif"],

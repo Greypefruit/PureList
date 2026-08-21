@@ -1,4 +1,4 @@
-export const DEFAULT_CHUNK_SIZE = 500;
+export const DEFAULT_CHUNK_SIZE = 50;
 
 export const OUTPUT_PRESETS = [
   { label: "Перенос строки", value: "\n" },

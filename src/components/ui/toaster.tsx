@@ -1,6 +1,5 @@
 import { createContext, useCallback, useContext, useEffect, useMemo, useState } from "react";
 import type { PropsWithChildren } from "react";
-import { cn } from "../../lib/utils";
 
 interface ToastItem {
   id: number;
@@ -39,13 +38,11 @@ export function ToastProvider({ children }: PropsWithChildren) {
   return (
     <ToastContext.Provider value={value}>
       {children}
-      <div className="pointer-events-none fixed bottom-5 right-5 z-50 flex w-full max-w-sm flex-col gap-3 px-4">
+      <div className="pointer-events-none fixed inset-x-4 bottom-4 z-50 flex flex-col items-end gap-2 sm:inset-x-auto sm:right-4">
         {items.map((item) => (
           <div
             key={item.id}
-            className={cn(
-              "rounded-2xl border border-border/70 bg-card/95 px-4 py-3 text-sm font-medium text-card-foreground shadow-panel backdrop-blur-xl",
-            )}
+            className="w-full max-w-sm rounded-md border border-border bg-card px-3 py-2 text-sm font-medium text-card-foreground shadow-sm"
           >
             {item.title}
           </div>

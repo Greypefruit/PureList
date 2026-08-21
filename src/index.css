@@ -3,44 +3,44 @@
 @tailwind utilities;
 
 :root {
-  --background: 240 27% 98%;
-  --foreground: 232 24% 14%;
+  --background: 220 14% 96%;
+  --foreground: 222 47% 11%;
   --card: 0 0% 100%;
-  --card-foreground: 232 24% 14%;
-  --primary: 242 72% 59%;
+  --card-foreground: 222 47% 11%;
+  --primary: 243 75% 59%;
   --primary-foreground: 0 0% 100%;
-  --secondary: 240 30% 95%;
-  --secondary-foreground: 235 20% 24%;
-  --accent: 252 92% 95%;
-  --accent-foreground: 248 44% 24%;
-  --muted: 240 24% 95%;
-  --muted-foreground: 233 12% 42%;
-  --destructive: 0 76% 58%;
+  --secondary: 220 14% 93%;
+  --secondary-foreground: 222 30% 20%;
+  --accent: 243 70% 96%;
+  --accent-foreground: 243 60% 35%;
+  --muted: 220 16% 93%;
+  --muted-foreground: 220 9% 40%;
+  --destructive: 0 72% 51%;
   --destructive-foreground: 0 0% 100%;
-  --border: 236 21% 88%;
-  --input: 236 21% 88%;
-  --ring: 242 72% 59%;
-  --radius: 1.1rem;
+  --border: 220 13% 83%;
+  --input: 220 13% 83%;
+  --ring: 243 75% 59%;
+  --radius: 0.5rem;
 }
 
 .dark {
-  --background: 235 24% 10%;
-  --foreground: 240 18% 94%;
-  --card: 236 21% 13%;
-  --card-foreground: 240 18% 94%;
-  --primary: 244 80% 68%;
-  --primary-foreground: 236 21% 13%;
-  --secondary: 235 17% 18%;
-  --secondary-foreground: 240 18% 94%;
-  --accent: 244 32% 19%;
-  --accent-foreground: 242 90% 88%;
-  --muted: 233 16% 18%;
-  --muted-foreground: 232 12% 68%;
-  --destructive: 0 63% 47%;
+  --background: 222 22% 10%;
+  --foreground: 210 20% 96%;
+  --card: 222 20% 13%;
+  --card-foreground: 210 20% 96%;
+  --primary: 243 78% 68%;
+  --primary-foreground: 0 0% 100%;
+  --secondary: 222 16% 18%;
+  --secondary-foreground: 210 20% 92%;
+  --accent: 243 30% 22%;
+  --accent-foreground: 243 70% 85%;
+  --muted: 222 16% 17%;
+  --muted-foreground: 215 14% 65%;
+  --destructive: 0 65% 55%;
   --destructive-foreground: 0 0% 100%;
-  --border: 233 15% 24%;
-  --input: 233 15% 24%;
-  --ring: 244 80% 68%;
+  --border: 222 14% 24%;
+  --input: 222 14% 24%;
+  --ring: 243 78% 68%;
 }
 
 html {
@@ -53,17 +53,6 @@ html.dark {
 
 body {
   @apply min-h-screen bg-background font-sans text-foreground antialiased;
-  background-image:
-    radial-gradient(circle at 0% 0%, rgba(99, 102, 241, 0.12), transparent 26%),
-    radial-gradient(circle at 100% 0%, rgba(168, 85, 247, 0.08), transparent 22%),
-    linear-gradient(to bottom, rgba(255, 255, 255, 0.78), rgba(248, 250, 252, 0.95));
-}
-
-.dark body {
-  background-image:
-    radial-gradient(circle at 0% 0%, rgba(99, 102, 241, 0.16), transparent 28%),
-    radial-gradient(circle at 100% 0%, rgba(168, 85, 247, 0.10), transparent 22%),
-    linear-gradient(to bottom, rgba(15, 23, 42, 0.82), rgba(17, 24, 39, 0.96));
 }
 
 * {

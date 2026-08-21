@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { OUTPUT_PRESETS } from "../lib/id-tools";
 import { Input } from "./ui/input";
+import { cn } from "../lib/utils";
 
 interface SeparatorComboboxProps {
   id: string;
@@ -28,12 +29,15 @@ export function SeparatorCombobox({
   }, [matchedPreset, value]);
 
   return (
-    <div className="space-y-2">
-      <label className="text-sm font-medium" htmlFor={id}>
+    <div className="space-y-1.5">
+      <label className="text-xs font-medium text-foreground" htmlFor={id}>
         {label}
       </label>
       <select
-        className="flex h-11 w-full rounded-[10px] border border-input bg-background px-3 py-2 text-sm text-foreground shadow-sm transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+        className={cn(
+          "flex h-9 w-full rounded-md border border-input bg-background px-3 text-sm text-foreground shadow-sm transition-colors",
+          "focus-visible:border-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/25",
+        )}
         id={id}
         onChange={(event) => {
           const nextMode = event.target.value;
@@ -64,9 +68,6 @@ export function SeparatorCombobox({
           value={customValue}
         />
       ) : null}
-      <p className="text-xs text-muted-foreground">
-        По умолчанию используется перенос строки. Можно ввести любой свой текст, включая пробелы.
-      </p>
     </div>
   );
 }
