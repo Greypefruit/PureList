@@ -154,7 +154,7 @@ function AppShell() {
   return (
     <div className="min-h-screen bg-background">
       <div className="border-b border-border bg-card">
-        <div className="mx-auto max-w-[1400px] px-4 sm:px-6 lg:px-8">
+        <div className="w-full px-5 lg:px-8 xl:px-10 2xl:px-12">
           <AppHeader
             navigation={<ModeTabs activeKey={activeTab} onChange={setActiveTab} tabs={tabs} />}
             onToggleTheme={() => setTheme((current) => (current === "light" ? "dark" : "light"))}
